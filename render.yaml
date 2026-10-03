@@ -22,7 +22,7 @@ services:
         value: prod
       - key: FRONTEND_URL
         fromService:
-          type: static_site
+          type: web
           name: aetherai-frontend
           property: host
       - key: GITHUB_TOKEN
@@ -38,9 +38,10 @@ services:
       - key: GOOGLE_CLIENT_SECRET
         sync: false
 
-  - type: static_site
+  - type: web
     name: aetherai-frontend
-    buildCommand: ""
+    runtime: static
+    buildCommand: "true"
     staticPublishPath: ./frontend
     routes:
       - type: rewrite
