@@ -1,0 +1,59 @@
+version: "3.9"
+
+# AetherAI local stack.
+#
+# HONEST SCOPE NOTE (see docs/ARCHITECTURE.md "Deviations from spec" for
+# full detail): this compose file runs the real, tested system described
+# in the README -- a Postgres-backed FastAPI backend (modular monolith
+# mirroring the spec's microservice boundaries) and a static dashboard.
+# It does NOT stand up Kafka, Eureka, an API Gateway, or MLflow as
+# separate containers, because those were not feasible to build and
+# verify as real, running components in the environment this project was
+# generated in. The backend's EventBus (app/eventbus.py) implements the
+# same topic names/payloads Kafka would use, backed by Postgres instead.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: aetherai-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: aetherpass
+      POSTGRES_DB: aetherai
+    ports:
+      - "5432:5432"
+    volumes:
+      - aetherai-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: aetherai-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env.example
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:aetherpass@postgres:5432/aetherai
+      ENV: dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - aetherai-model-artifacts:/app/model_artifacts
+
+  frontend:
+    build: ./frontend
+    container_name: aetherai-frontend
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  aetherai-pgdata:
+  aetherai-model-artifacts:

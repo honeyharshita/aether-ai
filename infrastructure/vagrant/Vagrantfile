@@ -1,0 +1,41 @@
+# AetherAI Vagrant configuration (spec Section 40).
+#
+# Demonstrates Infrastructure-as-Code concepts independently of Terraform:
+# a single reproducible VM that provisions Postgres + the backend via a
+# shell provisioner, for people who want to see IaC without Docker.
+#
+# Usage: vagrant up   (requires VirtualBox or another Vagrant provider)
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/jammy64"
+  config.vm.hostname = "aetherai-dev"
+
+  config.vm.network "forwarded_port", guest: 8000, host: 8000  # backend API
+  config.vm.network "forwarded_port", guest: 5432, host: 5432  # postgres
+  config.vm.network "private_network", ip: "192.168.56.10"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = "2048"
+    vb.cpus = 2
+  end
+
+  config.vm.synced_folder "./backend", "/opt/aetherai/backend"
+
+  config.vm.provision "shell", inline: <<-SHELL
+    set -e
+    apt-get update
+    apt-get install -y python3-pip python3-venv postgresql postgresql-contrib
+
+    su - postgres -c "psql -c \\"ALTER USER postgres PASSWORD 'aetherpass';\\""
+    su - postgres -c "createdb aetherai" || true
+
+    cd /opt/aetherai/backend
+    python3 -m venv /opt/aetherai/venv
+    /opt/aetherai/venv/bin/pip install -r requirements.txt
+
+    echo "Provisioning complete. SSH in with 'vagrant ssh', then:"
+    echo "  cd /opt/aetherai/backend && source /opt/aetherai/venv/bin/activate"
+    echo "  export DATABASE_URL=postgresql+psycopg2://postgres:aetherpass@localhost:5432/aetherai"
+    echo "  python -m app.ml.train && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+  SHELL
+end

@@ -1,0 +1,79 @@
+name: AetherAI CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-test-scan:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: aetherpass
+          POSTGRES_DB: aetherai_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+
+      - name: Static analysis (flake8)
+        working-directory: backend
+        run: |
+          pip install flake8
+          flake8 app --max-line-length=120 --extend-ignore=E203,W503 || true
+
+      - name: Unit + integration tests
+        working-directory: backend
+        env:
+          TEST_DATABASE_URL: postgresql+psycopg2://postgres:aetherpass@localhost:5432/aetherai_test
+        run: pytest tests/ -v
+
+      - name: Train and validate the real ML pipeline
+        working-directory: backend
+        run: python -m app.ml.train
+
+      - name: Dependency vulnerability scan
+        working-directory: backend
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements.txt || true
+
+      - name: Build backend image
+        run: docker build -t aetherai-backend:${{ github.sha }} ./backend
+
+      - name: Build frontend image
+        run: docker build -t aetherai-frontend:${{ github.sha }} ./frontend
+
+      - name: Scan backend image (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: aetherai-backend:${{ github.sha }}
+          format: table
+          exit-code: "0"  # non-blocking here; set to "1" to fail on critical CVEs once triaged
+          severity: CRITICAL,HIGH
+
+      # Deployment stage is intentionally left as a template: wire in
+      # your own ECR/EKS or Azure targets and credentials as repo secrets.
+      # - name: Deploy
+      #   run: ./scripts/deploy.sh

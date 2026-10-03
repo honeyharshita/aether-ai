@@ -1,0 +1,88 @@
+{
+  "dataset_version": "aetherai_demo_defects_v1",
+  "feature_schema_version": "1.0",
+  "feature_columns": [
+    "loc",
+    "cyclomatic_complexity",
+    "num_functions",
+    "churn_30d",
+    "num_commits",
+    "num_authors",
+    "historical_defects",
+    "test_coverage"
+  ],
+  "model_version": "v1",
+  "champion_model": "random_forest",
+  "uses_scaler": false,
+  "results": {
+    "logistic_regression": {
+      "accuracy": 0.6,
+      "precision": 0.6286,
+      "recall": 0.6667,
+      "f1": 0.6471,
+      "roc_auc": 0.6473,
+      "pr_auc": 0.6963,
+      "log_loss": 0.6538,
+      "confusion_matrix": [
+        [
+          56,
+          52
+        ],
+        [
+          44,
+          88
+        ]
+      ],
+      "inference_latency_ms": 0.0005,
+      "train_time_s": 0.0066
+    },
+    "random_forest": {
+      "accuracy": 0.5875,
+      "precision": 0.6107,
+      "recall": 0.6894,
+      "f1": 0.6477,
+      "roc_auc": 0.6325,
+      "pr_auc": 0.6764,
+      "log_loss": 0.6626,
+      "confusion_matrix": [
+        [
+          50,
+          58
+        ],
+        [
+          41,
+          91
+        ]
+      ],
+      "inference_latency_ms": 0.0423,
+      "train_time_s": 0.3156
+    },
+    "mlp": {
+      "accuracy": 0.5792,
+      "precision": 0.6422,
+      "recall": 0.5303,
+      "f1": 0.5809,
+      "roc_auc": 0.6301,
+      "pr_auc": 0.6811,
+      "log_loss": 0.6676,
+      "confusion_matrix": [
+        [
+          69,
+          39
+        ],
+        [
+          62,
+          70
+        ]
+      ],
+      "inference_latency_ms": 0.001,
+      "train_time_s": 0.195
+    }
+  },
+  "n_train": 720,
+  "n_val": 240,
+  "n_test": 240,
+  "mlflow_tracking_uri": "sqlite:///./model_artifacts/mlflow.db",
+  "mlflow_experiment": "aether-defect-prediction",
+  "mlflow_champion_run_id": "bf8a27e221aa4cb18a1f18bf3327f80f"
+}

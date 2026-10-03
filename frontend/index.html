@@ -1,0 +1,1909 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('aetherai_theme')==='light'?'light':'dark';}catch(e){document.documentElement.dataset.theme='dark';}</script>
+<title>AetherAI — Engineering Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0F14; --surface:#121821; --surface-alt:#1A222D; --raised:#202A37;
+    --border:#232E3B; --text:#E8EDF2; --muted:#8695A7; --dim:#586576;
+    --accent:#4FD1C5; --accent-dim:#2E7D75; --accent-glow:rgba(79,209,197,0.18);
+    --crit:#E5484D; --high:#F5A623; --med:#F0C846; --low:#4FD1C5;
+    --font-sans:'IBM Plex Sans',system-ui,sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,monospace;
+    --radius:10px;
+    color-scheme:dark;
+  }
+  :root[data-theme="light"]{
+    --bg:#F3F6F8; --surface:#FFFFFF; --surface-alt:#EDF2F5; --raised:#E2E9ED;
+    --border:#D5DEE4; --text:#18232D; --muted:#526474; --dim:#758493;
+    --accent:#087F78; --accent-dim:#28766F; --accent-glow:rgba(8,127,120,0.13);
+    --crit:#C63C46; --high:#B96B00; --med:#927000; --low:#087F78;
+    color-scheme:light;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(79,209,197,0.06), transparent),
+    var(--bg);
+    color:var(--text);font-family:var(--font-sans);}
+  ::selection{background:var(--accent-dim);color:#fff;}
+  a{color:var(--accent);}
+  code{font-family:var(--font-mono);background:var(--surface-alt);padding:1px 5px;border-radius:4px;font-size:12px;}
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--raised);border-radius:6px;}
+
+  #conn-banner{display:none;background:#3A1F1F;border-bottom:1px solid var(--crit);color:#FFD5D6;
+    font-size:12.5px;padding:9px 18px;text-align:center;font-family:var(--font-mono);}
+  #conn-banner.show{display:block;}
+  #conn-banner button{margin-left:10px;background:transparent;border:1px solid #FFD5D6;color:#FFD5D6;
+    border-radius:5px;padding:2px 9px;font-size:11px;cursor:pointer;}
+
+  #login-screen{position:relative;min-height:100svh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;padding:12px;overflow:hidden;}
+  #login-stage{position:relative;isolation:isolate;container-type:inline-size;width:min(calc(100vw - 24px),calc(150svh - 72px),1536px);aspect-ratio:3 / 2;flex:none;}
+  #login-art-entry,#login-art-parallax,#login-art-float{position:absolute;inset:0;}
+  #login-art-entry{z-index:0;animation:login-art-entry 700ms cubic-bezier(.22,1,.36,1) both;}
+  #login-art-parallax{transition:transform 180ms ease-out;will-change:transform;}
+  #login-art-float{animation:login-art-float 5s 700ms ease-in-out infinite;will-change:transform;}
+  #login-art-image{display:block;width:100%;height:100%;object-fit:contain;animation:login-art-breathe 8s 700ms ease-in-out infinite;transform-origin:center;will-change:transform;}
+  :root[data-theme="dark"] #login-art-image{filter:brightness(.84) saturate(.9);}
+  #login-image-space{display:none;}
+  @keyframes login-art-entry{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes login-art-float{0%,100%{transform:translateY(-8px);}50%{transform:translateY(8px);}}
+  @keyframes login-art-breathe{0%,100%{transform:scale(1);}50%{transform:scale(1.015);}}
+  #login-glow{position:absolute;z-index:1;left:3%;top:13%;width:49%;height:72%;border-radius:50%;pointer-events:none;
+    background:radial-gradient(ellipse,rgba(104,112,255,.17),rgba(73,189,255,.08) 42%,transparent 72%);
+    filter:blur(28px);mix-blend-mode:screen;animation:login-glow-pulse 8s ease-in-out infinite;}
+  @keyframes login-glow-pulse{0%,100%{opacity:.38;transform:scale(.97);}50%{opacity:.72;transform:scale(1.03);}}
+  #login-particles{position:absolute;inset:0;z-index:2;overflow:hidden;pointer-events:none;}
+  #login-particles span{position:absolute;width:3px;height:3px;border-radius:50%;background:#c8f5ff;box-shadow:0 0 9px 2px rgba(113,190,255,.55);opacity:0;
+    animation:login-particle-rise 9s ease-in-out infinite;}
+  #login-particles span:nth-child(1){left:5%;top:28%;animation-delay:-2s;}
+  #login-particles span:nth-child(2){left:47%;top:17%;animation-delay:-5s;}
+  #login-particles span:nth-child(3){left:8%;top:68%;animation-delay:-7s;}
+  #login-particles span:nth-child(4){left:49%;top:76%;animation-delay:-3.5s;}
+  #login-particles span:nth-child(5){left:3%;top:51%;animation-delay:-6s;}
+  #login-particles span:nth-child(6){left:51%;top:39%;animation-delay:-1s;}
+  @keyframes login-particle-rise{0%,100%{opacity:0;transform:translate3d(0,8px,0);}25%,70%{opacity:.52;}55%{transform:translate3d(2px,-16px,0);}}
+  #login-orbit{position:absolute;z-index:3;left:4%;top:24%;width:45%;height:48%;border-radius:50%;pointer-events:none;animation:login-orbit-turn 18s linear infinite;}
+  #login-orbit span{position:absolute;left:50%;top:0;width:7px;height:7px;border-radius:50%;background:#e5fdff;box-shadow:0 0 7px 2px #7ef4ff,0 0 18px 6px rgba(95,168,255,.4);}
+  #login-orbit span::after{content:"";position:absolute;right:3px;top:1px;width:24px;height:5px;border-radius:50%;background:linear-gradient(90deg,transparent,rgba(135,205,255,.55));filter:blur(2px);}
+  @keyframes login-orbit-turn{to{transform:rotate(360deg);}}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-mark{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--accent),#2A9D93);
+    display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:700;color:#04140F;font-size:18px;
+    box-shadow:0 0 24px var(--accent-glow);}
+  .brand-name{font-family:var(--font-mono);font-size:21px;letter-spacing:0.5px;}
+  .brand-name b{color:var(--accent);}
+  #login-card{position:absolute;z-index:5;left:54.08%;top:6.9%;width:42.1%;height:86.2%;max-width:none;margin:0;padding:0;
+    border:0;border-radius:2%;background:transparent;animation:login-card-enter 650ms cubic-bezier(.22,1,.36,1) both;}
+  @keyframes login-card-enter{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+  #login-card h2,#login-card p.sub,#login-card .field label,#login-card .toggle-row span{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:var(--dim);margin-bottom:6px;font-family:var(--font-mono);}
+  .field input, .field select{width:100%;padding:10px 12px;background:var(--surface-alt);border:1px solid var(--border);
+    border-radius:7px;color:var(--text);font-family:var(--font-sans);font-size:14px;transition:border-color .2s,box-shadow .2s,transform .2s;}
+  .field input:focus, .field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,209,197,0.13);}
+  #login-card #email-field,#login-card #password-field{position:absolute;left:10.1%;width:80%;height:7.25%;margin:0;}
+  #login-card #email-field{top:31.3%;}
+  #login-card #password-field{top:41.2%;}
+  #login-card .field input{height:100%;padding:0 12px 0 13%;border-color:transparent;border-radius:10px;background:transparent;color:#344368;font-size:clamp(10px,1.12vw,14px);}
+  #login-card .field input::placeholder{color:transparent;}
+  #login-card .field input:focus{border-color:rgba(69,111,255,.48);background:rgba(255,255,255,.12);box-shadow:0 0 0 3px rgba(78,116,255,.12),0 0 18px rgba(84,107,255,.16);}
+  #login-meta-row{position:absolute;left:10.1%;top:50.5%;width:80%;height:4.7%;display:flex;align-items:center;justify-content:space-between;}
+  #remember-control{position:relative;display:flex;align-items:center;gap:7px;width:45%;height:100%;cursor:pointer;}
+  #remember-me{appearance:none;position:relative;flex:none;width:clamp(10px,1.55cqw,24px);height:clamp(10px,1.55cqw,24px);margin:0;border:1px solid #cbd6ec;border-radius:22%;background:#fff;cursor:pointer;}
+  #remember-me:checked{border-color:#4b69f4;background:#4b69f4;}
+  #remember-me:checked::after{content:"";position:absolute;left:30%;top:10%;width:28%;height:54%;border:solid #fff;border-width:0 1.5px 1.5px 0;transform:rotate(45deg);}
+  #remember-me:focus-visible{outline:2px solid rgba(74,108,255,.5);outline-offset:2px;}
+  #remember-control span{font-size:0;color:transparent;}
+  #forgot-password-link{width:34%;height:100%;padding:0;border:0;background:transparent;color:transparent;font-size:0;cursor:pointer;border-radius:6px;}
+  #forgot-password-link:focus-visible{outline:2px solid rgba(74,108,255,.55);outline-offset:2px;}
+  .btn{cursor:pointer;border:none;border-radius:7px;padding:10px 16px;font-family:var(--font-sans);font-weight:600;font-size:13px;
+    transition:transform .22s cubic-bezier(.2,.7,.2,1),box-shadow .22s,border-color .22s,color .22s,background-position .45s;}
+  .btn-primary{background:var(--accent);color:#04140F;width:100%;}
+  #submit-btn{background-image:linear-gradient(110deg,var(--accent) 0%,#69ded3 48%,var(--accent) 100%);background-size:200% 100%;background-position:0% center;}
+  .btn-primary:hover:not(:disabled){background-position:100% center;transform:scale(1.02);box-shadow:0 7px 20px rgba(79,209,197,0.2);}
+  .btn-primary:active:not(:disabled){transform:scale(.98);}
+  .btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+  .auth-button-spinner{width:14px;height:14px;display:inline-block;vertical-align:-2px;margin-right:8px;border:2px solid rgba(4,20,15,.25);
+    border-top-color:#04140F;border-radius:50%;animation:spin .7s linear infinite;}
+  #login-card #submit-btn{position:absolute;left:10.1%;top:57.7%;width:80%;height:6.8%;padding:0;border:0;border-radius:11px;background:transparent;background-image:none;color:transparent;font-size:0;}
+  #login-card #submit-btn::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(105deg,rgba(115,89,255,.15),rgba(55,129,255,.16),rgba(115,89,255,.15));background-size:200% 100%;opacity:0;transition:opacity .3s,background-position .6s;}
+  #login-card #submit-btn:hover:not(:disabled){transform:scale(1.02);background-position:100% center;box-shadow:0 7px 20px rgba(84,111,255,.18);}
+  #login-card #submit-btn:hover:not(:disabled)::before{opacity:1;background-position:100% center;}
+  #login-card #submit-btn:active:not(:disabled){transform:scale(.98);}
+  #login-card #submit-btn[aria-busy="true"]{display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.88);color:#253254;font-size:12px;}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);}
+  #google-btn-wrap{position:absolute;left:10.1%;top:81.5%;width:80%;height:6.8%;margin:0;display:flex;justify-content:center;overflow:hidden;opacity:.01;}
+  #login-card #google-btn-wrap{transition:transform .22s ease,filter .22s ease,opacity .22s ease;}
+  #login-card #google-btn-wrap:hover{transform:translateY(-2px);filter:drop-shadow(0 4px 9px rgba(80,112,255,.2));opacity:.06;}
+  #github-login-btn{transition:transform .24s ease,box-shadow .24s ease,border-color .24s ease,color .24s ease;}
+  #login-card #github-login-btn{position:absolute;left:10.1%;top:73.1%;width:80%;height:6.8%;padding:0;border:0;border-radius:10px;background:transparent;color:transparent;font-size:0;}
+  #login-card #github-login-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 5px 14px rgba(80,126,255,.18);}
+  #login-card #github-login-btn:focus-visible,#login-card #submit-btn:focus-visible{outline:2px solid rgba(80,126,255,.7);outline-offset:2px;}
+  #login-card #github-login-note{position:absolute;left:10%;top:69%;width:80%;height:auto;padding:3px;background:rgba(255,255,255,.92);color:#c33;font-size:10px;}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+  .btn-sm{padding:6px 11px;font-size:11.5px;}
+  .toggle-row{position:absolute;left:29%;top:91.5%;width:42%;height:5%;display:flex;justify-content:space-between;align-items:center;margin:0;padding:0;border:0;background:transparent;text-align:left;font-family:inherit;font-size:12px;color:transparent;cursor:pointer;}
+  .toggle-row span{cursor:inherit;color:var(--accent);}
+  #login-card .toggle-row:hover{background:rgba(88,113,255,.06);border-radius:7px;}
+  .toggle-row:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px;}
+  #login-error{position:absolute;left:10%;top:51%;width:80%;min-height:0;color:#d64b52;font-size:11px;text-align:center;}
+  #api-config-row{font-family:var(--font-mono);color:var(--dim);font-size:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;min-height:18px;}
+  #api-config-row input{background:var(--surface-alt);border:1px solid var(--border);color:var(--muted);
+    font-family:var(--font-mono);font-size:11px;padding:4px 8px;border-radius:5px;width:260px;}
+  #api-status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;background:var(--dim);}
+  #api-status-dot.ok{background:var(--accent);box-shadow:0 0 6px var(--accent);}
+  #api-status-dot.bad{background:var(--crit);box-shadow:0 0 6px var(--crit);}
+  #login-screen>.brand{display:none;}
+  .theme-toggle{display:flex;align-items:center;justify-content:center;gap:8px;min-height:36px;padding:7px 11px;
+    border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font:12px var(--font-mono);cursor:pointer;
+    transition:background .15s,border-color .15s,color .15s;}
+  .theme-toggle:hover{background:var(--surface-alt);border-color:var(--accent);}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .theme-toggle-icon{font-size:15px;line-height:1;color:var(--accent);}
+  .login-theme-toggle{position:absolute;z-index:20;top:14px;right:16px;}
+  #topbar .theme-toggle{min-height:31px;padding:6px 10px;}
+
+  #login-card.register-mode{left:54.08%;top:6.9%;width:42.1%;height:86.2%;padding:6% 5%;border:1px solid var(--border);border-radius:15px;background:var(--surface);box-shadow:0 12px 38px rgba(20,35,50,.12);overflow:auto;}
+  #login-card.register-mode h2,#login-card.register-mode p.sub{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;white-space:normal;color:var(--text);}
+  #login-card.register-mode h2{font-size:clamp(14px,1.55vw,20px);font-weight:600;margin-bottom:5px;}
+  #login-card.register-mode p.sub{font-size:clamp(10px,1vw,13px);margin-bottom:16px;color:var(--muted);}
+  #login-card.register-mode #register-fields{position:static!important;width:auto!important;height:auto!important;padding:0!important;background:transparent!important;display:block!important;}
+  #login-card.register-mode .field,#login-card.register-mode #email-field,#login-card.register-mode #password-field{position:static;width:auto;height:auto;margin-bottom:10px;}
+  #login-card.register-mode .field label{position:static;width:auto;height:auto;margin:0 0 5px;overflow:visible;clip:auto;white-space:normal;border:0;color:var(--muted);font-size:10px;}
+  #login-card.register-mode .field input,#login-card.register-mode .field select{height:38px;padding:0 11px;border-color:var(--border);border-radius:8px;background:var(--surface-alt);color:var(--text);font-size:13px;}
+  #login-card.register-mode .field input::placeholder{color:var(--dim);}
+  #login-card.register-mode #submit-btn{position:relative;left:auto;top:auto;width:100%;height:42px;margin:2px 0 8px;padding:0 12px;border-radius:9px;background-image:linear-gradient(110deg,#7355f7,#3975ff,#7355f7);background-size:200% 100%;color:white;font-size:13px;}
+  #login-card.register-mode #submit-btn::before{display:none;}
+  #login-card.register-mode #github-login-btn{position:relative;left:auto;top:auto;width:100%;height:38px;margin:7px 0;padding:0 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface-alt);color:var(--text);font-size:12px;}
+  #login-card.register-mode #login-meta-row{display:none;}
+  #login-card.register-mode #google-btn-wrap{position:relative;left:auto;top:auto;width:100%;height:38px;margin:4px 0;opacity:1;}
+  #login-card.register-mode .toggle-row{position:relative;left:auto;top:auto;width:100%;height:28px;color:var(--muted);}
+  #login-card.register-mode .toggle-row span{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;white-space:normal;border:0;color:var(--accent);}
+  #login-card.register-mode #login-error{position:static;width:auto;min-height:16px;margin:4px 0;color:var(--crit);}
+  #login-card.register-mode #github-login-note{position:static;width:auto;margin:4px 0;padding:0;background:transparent;color:var(--crit);}
+
+  #app{display:none;min-height:100vh;grid-template-columns:224px 1fr;}
+  #app.active{display:grid;}
+  #sidebar{background:var(--surface);border-right:1px solid var(--border);padding:20px 14px;display:flex;flex-direction:column;gap:2px;position:sticky;top:0;height:100vh;}
+  #sidebar .brand{margin-bottom:22px;padding-left:6px;}
+  .nav-group-label{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:var(--dim);
+    padding:14px 12px 6px;}
+  .nav-item{padding:9px 12px;border-radius:7px;color:var(--muted);font-size:13px;cursor:pointer;font-family:var(--font-mono);
+    display:flex;align-items:center;gap:9px;transition:background .12s;}
+  .nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:0.8;}
+  .nav-item:hover{background:var(--surface-alt);color:var(--text);}
+  .nav-item.active{background:var(--accent-glow);color:var(--accent);}
+  .nav-item.active svg{opacity:1;}
+  #sidebar-foot{margin-top:auto;font-size:11px;color:var(--dim);padding:10px 6px;font-family:var(--font-mono);border-top:1px solid var(--border);}
+
+  #main{padding:26px 34px 60px;overflow-y:auto;height:100vh;}
+  #topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:12px;}
+  #topbar h1{font-size:19px;margin:0;font-weight:600;}
+  #topbar .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  select#project-select{padding:9px 11px;background:var(--surface-alt);border:1px solid var(--border);color:var(--text);
+    border-radius:7px;font-family:var(--font-mono);font-size:12px;max-width:220px;}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:22px;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:17px 19px;transition:border-color .15s;}
+  .card:hover{border-color:#2c3947;}
+  .card .label{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:var(--dim);margin-bottom:9px;
+    display:flex;align-items:center;gap:6px;}
+  .card .value{font-family:var(--font-mono);font-size:29px;font-weight:600;line-height:1;}
+  .card .value small{font-size:14px;color:var(--muted);font-weight:400;}
+  .card .value.crit{color:var(--crit);} .card .value.high{color:var(--high);} .card .value.ok{color:var(--accent);}
+
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:20px;}
+  .panel h3{margin:0 0 4px;font-size:14.5px;font-weight:600;display:flex;align-items:center;gap:8px;}
+  .panel .panel-sub{color:var(--muted);font-size:12.5px;margin:0 0 16px;}
+  .panel h3 .count{font-family:var(--font-mono);color:var(--dim);font-weight:400;font-size:12px;}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;font-family:var(--font-mono);font-size:10px;text-transform:uppercase;color:var(--dim);
+    padding:9px 10px;border-bottom:1px solid var(--border);letter-spacing:0.5px;}
+  td{padding:11px 10px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  tbody tr.clickable{cursor:pointer;transition:background .1s;}
+  tbody tr.clickable:hover{background:var(--surface-alt);}
+  .mono{font-family:var(--font-mono);}
+
+  .risk-bar-wrap{display:flex;align-items:center;gap:8px;width:140px;}
+  .risk-bar{flex:1;height:6px;background:var(--surface-alt);border-radius:3px;overflow:hidden;}
+  .risk-bar > i{display:block;height:100%;border-radius:3px;transition:width .3s;}
+  .risk-pct{font-family:var(--font-mono);font-size:11px;color:var(--muted);width:36px;}
+
+  .pill{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.4px;}
+  .pill-critical{background:rgba(229,72,77,0.15);color:var(--crit);}
+  .pill-high{background:rgba(245,166,35,0.15);color:var(--high);}
+  .pill-medium{background:rgba(240,200,70,0.15);color:var(--med);}
+  .pill-low{background:rgba(79,209,197,0.15);color:var(--low);}
+  .pill-pending{background:rgba(134,149,167,0.15);color:var(--muted);}
+  .pill-accepted{background:rgba(79,209,197,0.15);color:var(--accent);}
+  .pill-completed{background:rgba(79,209,197,0.3);color:var(--accent);}
+  .pill-rejected{background:rgba(229,72,77,0.1);color:var(--dim);}
+  .pill-open{background:rgba(229,72,77,0.12);color:var(--crit);}
+  .pill-closed{background:rgba(79,209,197,0.15);color:var(--accent);}
+  .pill-TODO{background:rgba(134,149,167,0.15);color:var(--muted);}
+  .pill-BACKLOG{background:rgba(134,149,167,0.1);color:var(--dim);}
+  .pill-IN_PROGRESS{background:rgba(240,200,70,0.15);color:var(--med);}
+  .pill-DONE{background:rgba(79,209,197,0.15);color:var(--accent);}
+
+  .rec-row{border-bottom:1px solid var(--border);padding:15px 0;}
+  .rec-row:last-child{border-bottom:none;}
+  .rec-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:6px;}
+  .rec-action{font-weight:600;font-size:13.5px;}
+  .rec-reason{color:var(--muted);font-size:12.5px;margin-bottom:8px;}
+  .rec-actions button{margin-right:6px;}
+
+  .event-row{display:grid;grid-template-columns:90px 1fr 130px 80px;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px;align-items:center;}
+  .event-row:last-child{border-bottom:none;}
+  .event-type{font-family:var(--font-mono);color:var(--text);}
+  .event-time{font-family:var(--font-mono);color:var(--dim);}
+  .event-source{color:var(--muted);}
+  .status-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:7px;background:var(--accent);}
+  .status-dot.dead{background:var(--crit);}
+
+  .empty-state{color:var(--dim);font-size:13px;padding:28px 10px;text-align:center;}
+  .model-champion{color:var(--accent);font-weight:600;}
+
+  .section{display:none;}
+  .section.active{display:block;animation:fadein .2s ease;}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+  .health-breakdown{display:flex;gap:18px;margin-top:6px;flex-wrap:wrap;}
+  .health-item{flex:1;min-width:130px;}
+  .health-item .h-label{font-size:11px;color:var(--dim);font-family:var(--font-mono);margin-bottom:5px;}
+  .health-item .h-bar{height:5px;background:var(--surface-alt);border-radius:3px;overflow:hidden;}
+  .health-item .h-bar > i{display:block;height:100%;background:var(--accent);}
+  .health-item .h-val{font-family:var(--font-mono);font-size:12px;margin-top:4px;color:var(--muted);}
+
+  .toast{position:fixed;bottom:22px;right:22px;background:var(--raised);border:1px solid var(--border);border-left:3px solid var(--accent);
+    padding:13px 18px;border-radius:8px;font-size:13px;display:none;z-index:200;max-width:360px;box-shadow:0 8px 24px rgba(0,0,0,0.4);}
+  .toast.show{display:block;animation:fadein .2s ease;}
+  .toast.error{border-left-color:var(--crit);}
+
+  .connect-hero{background:linear-gradient(160deg, var(--surface) 0%, var(--surface-alt) 100%);
+    border:1px solid var(--border);border-radius:var(--radius);padding:32px;margin-bottom:22px;}
+  .connect-hero h2{margin:0 0 6px;font-size:18px;}
+  .connect-hero p{color:var(--muted);font-size:13px;margin:0 0 20px;max-width:560px;}
+  .connect-input-row{display:flex;gap:10px;}
+  .connect-input-row input{flex:1;padding:13px 16px;background:var(--bg);border:1px solid var(--border);
+    border-radius:8px;color:var(--text);font-family:var(--font-mono);font-size:14px;}
+  .connect-input-row input:focus{outline:none;border-color:var(--accent);}
+  .connect-input-row button{padding:0 22px;border-radius:8px;font-size:13px;white-space:nowrap;}
+  .connect-examples{margin-top:10px;font-size:11.5px;color:var(--dim);font-family:var(--font-mono);}
+  .connect-examples span{cursor:pointer;color:var(--accent-dim);margin-right:12px;}
+  .connect-examples span:hover{color:var(--accent);}
+
+  .progress-steps{display:flex;flex-direction:column;gap:10px;margin-top:20px;}
+  .progress-step{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--dim);font-family:var(--font-mono);}
+  .progress-step .dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+  .progress-step.active .dot{border-color:var(--accent);box-shadow:0 0 8px var(--accent-glow);}
+  .progress-step.active{color:var(--text);}
+  .progress-step.done .dot{background:var(--accent);border-color:var(--accent);}
+  .progress-step.done .dot::after{content:'✓';font-size:10px;color:#04140F;font-weight:700;}
+  .progress-step.active .dot::after{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+  .connect-result{margin-top:22px;padding-top:20px;border-top:1px solid var(--border);}
+  .connect-result-grid{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:16px;}
+  .connect-result-stat{font-family:var(--font-mono);}
+  .connect-result-stat .n{font-size:22px;font-weight:600;color:var(--accent);}
+  .connect-result-stat .l{font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px;}
+
+  #modal-overlay{display:none;position:fixed;inset:0;background:rgba(4,8,12,0.72);z-index:300;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto;}
+  #modal-overlay.show{display:flex;}
+  #modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);width:640px;max-width:100%;padding:28px;animation:fadein .15s ease;}
+  #modal-close{float:right;cursor:pointer;color:var(--dim);font-size:20px;line-height:1;}
+  #modal-close:hover{color:var(--text);}
+  #modal h2{margin:0 0 4px;font-size:16px;font-family:var(--font-mono);}
+  #modal .modal-sub{color:var(--muted);font-size:12.5px;margin-bottom:18px;}
+  .factor-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12.5px;}
+  .factor-bar-row .fname{width:150px;flex-shrink:0;font-family:var(--font-mono);color:var(--muted);}
+  .factor-bar-track{flex:1;height:16px;background:var(--surface-alt);border-radius:4px;position:relative;overflow:hidden;}
+  .factor-bar-fill{position:absolute;top:0;bottom:0;border-radius:4px;}
+  .factor-bar-fill.pos{background:var(--crit);left:50%;}
+  .factor-bar-fill.neg{background:var(--accent);right:50%;}
+  .factor-mid-line{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--border);}
+  .modal-section{margin-top:20px;}
+  .modal-section h4{font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:var(--dim);font-family:var(--font-mono);margin-bottom:10px;}
+
+  .task-card{background:var(--surface-alt);border:1px solid var(--border);border-radius:8px;padding:13px 15px;margin-bottom:10px;}
+  .task-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .task-title{font-size:13px;font-weight:500;}
+  .task-meta{display:flex;gap:14px;margin-top:8px;font-size:11px;color:var(--dim);font-family:var(--font-mono);}
+
+  .twin-toolbar,.memory-toolbar{display:flex;align-items:end;gap:10px;flex-wrap:wrap;}
+  .twin-toolbar .field,.memory-toolbar .field{margin:0;min-width:180px;flex:1;}
+  .twin-graph-wrap{height:560px;min-height:360px;border:1px solid var(--border);background:#0b1118;border-radius:7px;overflow:hidden;}
+  #twin-graph{width:100%;height:100%;display:block;}
+  .twin-edge{stroke:var(--dim);stroke-opacity:.55;}
+  .twin-edge.co_change{stroke:var(--high);}
+  .twin-edge.authorship{stroke:var(--accent-dim);}
+  .twin-edge.related_issue{stroke:var(--crit);stroke-dasharray:4 3;}
+  .twin-node circle{stroke:#0b1118;stroke-width:2px;cursor:pointer;}
+  .twin-node text{fill:var(--muted);font:10px var(--font-mono);pointer-events:none;}
+  .twin-legend{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font:11px var(--font-mono);padding:10px 0;}
+  .twin-legend span{display:flex;align-items:center;gap:6px;}
+  .twin-legend i{width:9px;height:9px;border-radius:50%;display:inline-block;}
+  .memory-entry{display:grid;grid-template-columns:150px 120px 1fr;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);align-items:start;}
+  .memory-entry:last-child{border-bottom:0;}
+  .memory-time{font:11px var(--font-mono);color:var(--dim);}
+  .memory-summary{font-size:13px;line-height:1.5;}
+  .memory-evidence{grid-column:3;color:var(--dim);font:10px var(--font-mono);white-space:pre-wrap;overflow-wrap:anywhere;}
+  .module-tabs{display:flex;gap:6px;border-bottom:1px solid var(--border);margin:18px 0 12px;}
+  .module-tab{background:transparent;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:9px 12px;cursor:pointer;font:12px var(--font-mono);}
+  .module-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .sim-slider{display:grid;grid-template-columns:180px 1fr 62px;align-items:center;gap:12px;margin:13px 0;font-size:12px;}
+  .sim-slider label{font-family:var(--font-mono);color:var(--muted);}
+  .sim-slider input{width:100%;accent-color:var(--accent);}
+  .sim-value{text-align:right;font:12px var(--font-mono);}
+  .sim-risk{margin:16px 0;padding:14px;background:var(--surface-alt);border-radius:6px;}
+  .sim-risk-track{height:10px;background:var(--bg);border-radius:5px;overflow:hidden;margin-top:8px;}
+  #sim-risk-fill{height:100%;width:0;background:var(--accent);transition:width .15s;}
+  .fusion-weight{display:grid;grid-template-columns:minmax(180px,1fr) 70px 90px 90px;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:12px;align-items:center;}
+
+  canvas#risk-chart{width:100%;height:140px;}
+
+  .spinner{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;
+    display:inline-block;animation:spin .6s linear infinite;vertical-align:middle;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  @media (prefers-reduced-motion: reduce){
+    #login-screen *,#login-screen *::before,#login-screen *::after{scroll-behavior:auto !important;transition-duration:.01ms !important;}
+    #login-art-entry{animation:login-art-entry 220ms ease-out both !important;}
+    #login-art-float,#login-art-image,#login-glow,#login-orbit,#login-particles span,#login-card .auth-button-spinner{animation:none !important;}
+    #login-art-parallax{transform:none !important;transition:none !important;}
+    #login-card{animation:login-card-enter 220ms ease-out both !important;}
+  }
+
+  @media (max-width: 860px){
+    #app{grid-template-columns:190px minmax(0,1fr);}
+    #sidebar{position:sticky;top:0;height:100vh;min-height:0;align-self:start;overflow-y:auto;overflow-x:hidden;padding:16px 10px;}
+    #main{min-width:0;padding:18px;}
+    .twin-graph-wrap{height:420px;}
+    .memory-entry{grid-template-columns:1fr;gap:5px;}
+    .memory-evidence{grid-column:1;}
+    .sim-slider{grid-template-columns:1fr 60px;}
+    .sim-slider label{grid-column:1 / -1;}
+    .fusion-weight{grid-template-columns:minmax(120px,1fr) 55px 70px 70px;font-size:10px;}
+  }
+
+  @media (max-width: 640px){
+    #app{grid-template-columns:150px minmax(0,1fr);}
+    #sidebar{padding:14px 8px;}
+    #sidebar .brand{display:none;}
+    #sidebar-foot{display:none;}
+    .nav-group-label{padding:11px 7px 5px;font-size:9px;}
+    .nav-item{padding:9px 7px;gap:7px;font-size:11px;}
+    #main{padding:14px 12px 40px;}
+    #topbar{align-items:flex-start;}
+    #topbar .controls{width:100%;}
+  }
+
+  @media (max-width: 640px){
+    #login-screen{justify-content:flex-start;gap:10px;overflow-y:auto;overflow-x:hidden;padding:54px 12px 12px;}
+    #login-stage{display:flex;flex-direction:column;align-items:stretch;width:min(100%,560px);max-height:none;aspect-ratio:auto;}
+    #login-art-entry,#login-art-parallax,#login-art-float{inset:auto;top:0;left:0;right:0;width:100%;height:auto;aspect-ratio:3 / 2;}
+    #login-image-space{display:block;width:100%;aspect-ratio:3 / 2;flex:none;}
+    #login-card,#login-card.register-mode{position:relative;left:auto;top:auto;width:min(100%,380px);max-width:380px;height:auto;margin:0 auto;padding:22px;
+      border:1px solid var(--border);border-radius:14px;background:var(--surface);box-shadow:0 10px 28px rgba(30,48,88,.12);overflow:visible;}
+    #login-card h2,#login-card p.sub{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;white-space:normal;border:0;color:var(--text);}
+    #login-card h2{font-size:18px;font-weight:600;margin-bottom:5px;}
+    #login-card p.sub{font-size:12px;color:var(--muted);margin-bottom:18px;}
+    #login-card .field,#login-card #email-field,#login-card #password-field,#login-card.register-mode .field{position:static;width:auto;height:auto;margin:0 0 12px;}
+    #login-card .field label,#login-card.register-mode .field label{position:static;width:auto;height:auto;display:block;margin:0 0 5px;overflow:visible;clip:auto;white-space:normal;border:0;color:var(--muted);font-size:10px;}
+    #login-card .field input,#login-card .field select,#login-card.register-mode .field input,#login-card.register-mode .field select{height:42px;padding:0 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface-alt);color:var(--text);font-size:14px;}
+    #login-card .field input::placeholder,#login-card.register-mode .field input::placeholder{color:var(--dim);}
+    #login-card #login-meta-row,#login-card.register-mode #login-meta-row{position:relative;left:auto;top:auto;width:100%;height:28px;margin:0 0 8px;display:flex;}
+    #login-card #remember-control,#login-card.register-mode #remember-control{width:auto;gap:7px;}
+    #login-card #remember-control span,#login-card.register-mode #remember-control span{font-size:11px;color:var(--muted);}
+    #login-card #remember-me,#login-card.register-mode #remember-me{width:17px;height:17px;}
+    #login-card #forgot-password-link,#login-card.register-mode #forgot-password-link{width:auto;height:auto;padding:4px 0;color:var(--accent);font-size:11px;}
+    #login-card #register-fields,#login-card.register-mode #register-fields{position:static;width:auto;height:auto;margin:0 0 12px;padding:0;border:0;border-radius:0;background:transparent;display:none;}
+    #login-card.register-mode #register-fields{display:block!important;}
+    #login-card #submit-btn,#login-card.register-mode #submit-btn{position:relative;left:auto;top:auto;width:100%;height:44px;margin:2px 0 8px;padding:0 12px;border:0;border-radius:9px;background-image:linear-gradient(110deg,#7355f7,#3975ff,#7355f7);background-size:200% 100%;color:#fff;font-size:13px;}
+    #login-card #submit-btn::before,#login-card.register-mode #submit-btn::before{display:none;}
+    #login-card #github-login-btn,#login-card.register-mode #github-login-btn{position:relative;left:auto;top:auto;width:100%;height:42px;margin:7px 0;padding:0 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface-alt);color:var(--text);font-size:12px;}
+    #login-card #google-btn-wrap,#login-card.register-mode #google-btn-wrap{position:relative;left:auto;top:auto;width:100%;height:42px;margin:5px 0;opacity:1;}
+    #login-card .toggle-row,#login-card.register-mode .toggle-row{position:relative;left:auto;top:auto;width:100%;height:32px;margin-top:8px;color:var(--muted);}
+    #login-card .toggle-row span,#login-card.register-mode .toggle-row span{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;white-space:normal;border:0;color:var(--accent);font-size:12px;}
+    #login-card #login-error,#login-card.register-mode #login-error{position:static;width:auto;min-height:16px;margin:4px 0;color:var(--crit);text-align:left;}
+    #login-card #github-login-note,#login-card.register-mode #github-login-note{position:static;width:auto;margin:4px 0;padding:0;background:transparent;color:var(--crit);}
+    #api-config-row{width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<div id="conn-banner">⚠ Can't reach the AetherAI backend. <span id="conn-banner-msg"></span><button onclick="checkConnectivity(true)">Retry</button></div>
+
+<div id="login-screen">
+  <button type="button" class="theme-toggle login-theme-toggle" data-theme-toggle aria-label="Switch theme" onclick="toggleTheme()">
+    <span class="theme-toggle-icon" aria-hidden="true">☼</span><span class="theme-toggle-label">Bright mode</span>
+  </button>
+  <div id="login-stage">
+    <div id="login-art-entry">
+      <div id="login-art-parallax">
+        <div id="login-art-float">
+          <img id="login-art-image" src="/aetherai-login.png" alt="" aria-hidden="true" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='/public/aetherai-login.png';}"/>
+        </div>
+      </div>
+    </div>
+    <div id="login-glow" aria-hidden="true"></div>
+    <div id="login-particles" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div id="login-orbit" aria-hidden="true"><span></span></div>
+    <div id="login-image-space" aria-hidden="true"></div>
+    <div id="login-card">
+      <h2 id="form-title">Sign in</h2>
+      <p class="sub">Adaptive software engineering intelligence.</p>
+      <div id="register-fields" style="display:none">
+        <div class="field"><label for="reg-name">Full name</label><input id="reg-name" type="text" placeholder="Ada Lovelace" autocomplete="name"/></div>
+        <div class="field"><label for="reg-role">Role</label>
+          <select id="reg-role">
+            <option>PROJECT_MANAGER</option><option>DEVELOPER</option><option>QA_ENGINEER</option>
+            <option>SECURITY_ENGINEER</option><option>DATA_SCIENTIST</option><option>ADMIN</option><option>VIEWER</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" id="email-field"><label for="login-email">Email address</label><input id="login-email" type="email" aria-label="Email address" placeholder="Email address" autocomplete="email"/></div>
+      <div class="field" id="password-field"><label for="login-password">Password</label><input id="login-password" type="password" aria-label="Password" placeholder="Password" autocomplete="current-password"/></div>
+      <div id="login-meta-row">
+        <label id="remember-control" for="remember-me"><input id="remember-me" type="checkbox" checked/><span>Remember me</span></label>
+        <button type="button" id="forgot-password-link" onclick="showForgotPassword()">Forgot password?</button>
+      </div>
+      <button class="btn btn-primary" id="submit-btn" aria-label="Sign in" onclick="doLogin()">Sign in</button>
+      <div id="google-btn-wrap"></div>
+      <button type="button" class="btn btn-ghost" id="github-login-btn" aria-label="Continue with GitHub" onclick="loginWithGitHub()">Continue with GitHub</button>
+      <div id="github-login-note" class="empty-state" style="display:none;"></div>
+      <div id="login-error" role="alert" aria-live="polite"></div>
+      <button type="button" class="toggle-row" onclick="toggleMode()" aria-label="Switch between sign in and account creation">
+        <span id="mode-label">Need an account?</span>
+        <span id="mode-toggle">Register</span>
+      </button>
+    </div>
+  </div>
+  <div id="api-config-row">
+    <span id="api-status-dot"></span>
+    <span>API:</span>
+    <input id="api-base-input" spellcheck="false"/>
+    <span onclick="saveApiBase()" style="cursor:pointer;color:var(--accent);">save</span>
+  </div>
+</div>
+
+<div id="app">
+  <div id="sidebar">
+    <div class="brand"><div class="brand-mark">Æ</div><div class="brand-name" style="font-size:15px"><b>Aether</b>AI</div></div>
+
+    <div class="nav-item active" data-section="overview" onclick="switchSection('overview')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+      Overview
+    </div>
+    <div class="nav-item" data-section="connect" onclick="switchSection('connect')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18c-4.51 2-5-2-7-2"/><path d="M9 18v-1.87a2.66 2.66 0 0 1 .74-1.86 2.66 2.66 0 0 1-3.35-3.35 5.25 5.25 0 0 1 3.35-3.35A5.4 5.4 0 0 1 9 5.66a5.4 5.4 0 0 1 3.35 1.86 5.25 5.25 0 0 1 3.35 3.35 2.66 2.66 0 0 1-3.35 3.35A2.66 2.66 0 0 1 15 16.13V18"/></svg>
+      Connect Repo
+    </div>
+
+    <div class="nav-group-label">Intelligence</div>
+    <div class="nav-item" data-section="code-risk" onclick="switchSection('code-risk')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+      Code Risk
+    </div>
+    <div class="nav-item" data-section="twin" onclick="switchSection('twin')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M7 7l4 9m6-9-4 9M7 6h10"/></svg>
+      Digital Twin
+    </div>
+    <div class="nav-item" data-section="recommendations" onclick="switchSection('recommendations')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a6 6 0 0 0-4 10.4c.6.6 1 1.4 1 2.4v0h6v0c0-1 .4-1.7 1-2.4A6 6 0 0 0 12 2z"/></svg>
+      Recommendations
+    </div>
+    <div class="nav-item" data-section="anomalies" onclick="switchSection('anomalies')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Anomalies
+    </div>
+    <div class="nav-item" data-section="security" onclick="switchSection('security')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Security
+    </div>
+
+    <div class="nav-group-label">Project</div>
+    <div class="nav-item" data-section="issues" onclick="switchSection('issues')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      Bugs
+    </div>
+    <div class="nav-item" data-section="tasks" onclick="switchSection('tasks')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Sprint / Tasks
+    </div>
+    <div class="nav-item" data-section="memory" onclick="switchSection('memory')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16M4 12h10M4 19h16"/><circle cx="18" cy="12" r="2"/></svg>
+      Memory
+    </div>
+    <div class="nav-item" data-section="events" onclick="switchSection('events')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Event Stream
+    </div>
+    <div class="nav-item" data-section="models" onclick="switchSection('models')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6m11-7h-6M7 12H1m17.5-6.5l-4.2 4.2M9.7 14.3l-4.2 4.2m0-13l4.2 4.2m4.6 4.6l4.2 4.2"/></svg>
+      Model Lab
+    </div>
+
+    <div id="sidebar-foot">Signed in as<br/><span id="whoami" style="color:var(--muted)"></span><br/><br/><span style="cursor:pointer;color:var(--accent)" onclick="logout()">Sign out</span></div>
+  </div>
+
+  <div id="main">
+    <div id="topbar">
+      <h1 id="page-title">Overview</h1>
+      <div class="controls">
+        <select id="project-select" onchange="onProjectChange()"></select>
+        <button class="btn btn-ghost btn-sm" onclick="createProject()">+ New Project</button>
+        <button class="btn btn-primary btn-sm" onclick="seedDemo()" style="width:auto;">Seed Demo Project</button>
+        <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme" onclick="toggleTheme()">
+          <span class="theme-toggle-icon" aria-hidden="true">☼</span><span class="theme-toggle-label">Bright mode</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="section active" id="section-overview">
+      <div class="grid" id="overview-cards"></div>
+      <div class="panel">
+        <h3>Project health breakdown</h3>
+        <p class="panel-sub">Computed live from real signals below -- never hardcoded.</p>
+        <div id="health-detail" class="empty-state">Select or create a project to see live health signals.</div>
+      </div>
+      <div class="panel">
+        <h3>Risk trend <span class="count" id="timeline-count"></span></h3>
+        <p class="panel-sub">Average predicted defect risk per day, from real stored predictions.</p>
+        <canvas id="risk-chart"></canvas>
+        <div id="timeline-empty" class="empty-state" style="display:none;">Not enough prediction history yet -- sync a repository more than once, or check back after more predictions accumulate.</div>
+      </div>
+      <div class="panel">
+        <h3>Connected repositories</h3>
+        <div id="repo-list"></div>
+      </div>
+    </div>
+
+    <div class="section" id="section-connect">
+      <div class="connect-hero">
+        <h2>Connect a GitHub repository</h2>
+        <p>Paste any GitHub link -- a full URL or just <code>owner/repo</code> -- and AetherAI will pull real commits, compute real code metrics, run real ML predictions with SHAP explanations, and generate evidence-based recommendations, all in one pass.</p>
+        <div class="field" id="github-repo-picker">
+          <label for="github-repo-select">Repositories from your GitHub account</label>
+          <div class="connect-input-row">
+            <select id="github-repo-select" onchange="selectGitHubRepository()" style="flex:1;padding:12px;background:var(--bg);border:1px solid var(--border);color:var(--text);">
+              <option value="">Sign in with GitHub to load repositories</option>
+            </select>
+            <button class="btn btn-ghost" id="github-repo-refresh" onclick="loadGitHubRepositories()">Refresh</button>
+          </div>
+        </div>
+        <div class="connect-input-row">
+          <input id="connect-url-input" placeholder="https://github.com/owner/repo" onkeydown="if(event.key==='Enter') runConnectAndSync()"/>
+          <button class="btn btn-primary" id="connect-btn" onclick="runConnectAndSync()">Analyze Repository</button>
+        </div>
+        <div class="progress-steps" id="connect-progress" style="display:none;">
+          <div class="progress-step" data-step="connect"><div class="dot"></div> Connecting to repository</div>
+          <div class="progress-step" data-step="commits"><div class="dot"></div> Fetching real commit history</div>
+          <div class="progress-step" data-step="analyze"><div class="dot"></div> Computing real code metrics (complexity, churn, LOC)</div>
+          <div class="progress-step" data-step="predict"><div class="dot"></div> Running trained ML model + SHAP explanations</div>
+          <div class="progress-step" data-step="recommend"><div class="dot"></div> Generating evidence-based recommendations</div>
+        </div>
+        <div class="connect-result" id="connect-result" style="display:none;"></div>
+      </div>
+    </div>
+
+    <div class="section" id="section-code-risk">
+      <div class="panel">
+        <h3>Module defect risk <span class="count" id="code-risk-count"></span></h3>
+        <p class="panel-sub">Click any module to see its real SHAP explanation.</p>
+        <table id="code-risk-table"><thead><tr>
+          <th>Module</th><th>Defect risk</th><th>Complexity</th><th>Churn</th><th>Coverage</th><th>Authors</th>
+        </tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+
+    <div class="section" id="section-twin">
+      <div class="panel">
+        <h3>Project graph <span class="count" id="twin-count"></span></h3>
+        <p class="panel-sub">Nodes, risk, and relationships come from stored project rows. Module size reflects LOC; co-change edges reflect shared commits.</p>
+        <div class="twin-toolbar">
+          <div class="field"><label for="twin-snapshot-date">Historical snapshot at</label><input id="twin-snapshot-date" type="datetime-local"/></div>
+          <button class="btn btn-ghost" onclick="loadTwinSnapshot()">Load snapshot</button>
+          <button class="btn btn-ghost" onclick="renderTwinGraph()">Current graph</button>
+        </div>
+        <div class="twin-legend">
+          <span><i style="background:var(--low)"></i>Lower risk</span><span><i style="background:var(--high)"></i>Elevated risk</span>
+          <span><i style="background:var(--crit)"></i>High risk</span><span><i style="background:#7aa2f7"></i>Contributor</span>
+          <span>Edge width = real relationship count</span>
+        </div>
+        <div id="twin-empty" class="empty-state" style="display:none;"></div>
+        <div class="twin-graph-wrap" id="twin-graph-wrap"><svg id="twin-graph" role="img" aria-label="Evidence-backed project graph"></svg></div>
+        <div id="twin-node-detail" class="panel-sub" style="margin:12px 0 0;min-height:18px;"></div>
+      </div>
+    </div>
+
+    <div class="section" id="section-recommendations">
+      <div class="panel">
+        <h3>Recommendations <span class="count" id="rec-count"></span></h3>
+        <div id="rec-list"></div>
+      </div>
+    </div>
+
+    <div class="section" id="section-security">
+      <div class="panel">
+        <h3>Security findings <span class="count" id="sec-count"></span></h3>
+        <table><thead><tr><th>Severity</th><th>Source</th><th>Component</th><th>CVE</th><th>Status</th></tr></thead>
+        <tbody id="sec-table-body"></tbody></table>
+      </div>
+    </div>
+
+    <div class="section" id="section-anomalies">
+      <div class="panel">
+        <h3>Autoencoder anomaly detection <span class="count" id="anomaly-count"></span></h3>
+        <p class="panel-sub">Real reconstruction error from a neural network trained only on typical module behavior -- higher error means the module looks less like anything the model has seen before.</p>
+        <table><thead><tr><th>Module</th><th>Reconstruction error</th><th>Threshold</th><th>Severity</th><th></th></tr></thead>
+        <tbody id="anomaly-table-body"></tbody></table>
+      </div>
+    </div>
+
+    <div class="section" id="section-issues">
+      <div class="panel">
+        <h3>Bugs &amp; issues <span class="count" id="issue-count"></span></h3>
+        <div style="display:flex;gap:10px;margin-bottom:16px;">
+          <input id="new-issue-title" placeholder="Report a bug..." style="flex:1;padding:9px 12px;background:var(--surface-alt);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:13px;"/>
+          <select id="new-issue-severity" style="padding:9px 11px;background:var(--surface-alt);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--font-mono);font-size:12px;">
+            <option value="low">low</option><option value="medium" selected>medium</option><option value="high">high</option><option value="critical">critical</option>
+          </select>
+          <button class="btn btn-ghost" onclick="createIssue()">Add</button>
+        </div>
+        <table><thead><tr><th>Title</th><th>Severity</th><th>Status</th><th>Module</th><th></th></tr></thead>
+        <tbody id="issue-table-body"></tbody></table>
+      </div>
+    </div>
+
+    <div class="section" id="section-tasks">
+      <div class="panel">
+        <h3>Sprint &amp; tasks <span class="count" id="task-count"></span></h3>
+        <div style="display:flex;gap:10px;margin-bottom:16px;">
+          <input id="new-task-title" placeholder="New task..." style="flex:1;padding:9px 12px;background:var(--surface-alt);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:13px;"/>
+          <button class="btn btn-ghost" onclick="createTask()">Add</button>
+        </div>
+        <div id="task-list"></div>
+      </div>
+    </div>
+
+    <div class="section" id="section-events">
+      <div class="panel">
+        <h3>Live event stream <span class="count" id="event-count"></span></h3>
+        <div id="event-list"></div>
+      </div>
+    </div>
+
+    <div class="section" id="section-memory">
+      <div class="panel">
+        <h3>Project memory <span class="count" id="memory-count"></span></h3>
+        <p class="panel-sub">Chronology assembled from persisted events, predictions, and recommendation outcomes.</p>
+        <div class="memory-toolbar">
+          <div class="field"><label for="memory-from">From</label><input id="memory-from" type="date"/></div>
+          <div class="field"><label for="memory-to">To</label><input id="memory-to" type="date"/></div>
+          <div class="field"><label for="memory-filter">Filter timeline</label><input id="memory-filter" type="search" placeholder="Search summaries" oninput="filterMemoryTimeline()"/></div>
+          <button class="btn btn-ghost" onclick="renderMemory()">Apply</button>
+          <button class="btn btn-ghost" onclick="exportMemoryReport()" title="Export timeline report">Export</button>
+        </div>
+        <div id="memory-empty" class="empty-state" style="display:none;"></div>
+        <div id="memory-timeline"></div>
+      </div>
+    </div>
+
+    <div class="section" id="section-models">
+      <div class="panel">
+        <h3>Model comparison <span class="count">(from last real training run)</span></h3>
+        <table><thead><tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th><th>ROC-AUC</th><th>Latency (ms)</th></tr></thead>
+        <tbody id="model-table-body"></tbody></table>
+        <div id="model-empty" class="empty-state" style="display:none;">No training run found. Run <code>python -m app.ml.train</code> in the backend, then reload.</div>
+      </div>
+      <div class="panel">
+        <h3>Fusion calibration <span class="count" id="fusion-version"></span></h3>
+        <p class="panel-sub">Recommendation ranking weights derived from measured completed outcomes. No model weights are changed.</p>
+        <div id="fusion-sample" class="panel-sub"></div>
+        <div class="fusion-weight" style="font-family:var(--font-mono);color:var(--dim);text-transform:uppercase;font-size:10px;">
+          <span>Recommendation type</span><span>Weight</span><span>Measured</span><span>Effectiveness</span>
+        </div>
+        <div id="fusion-weight-list"></div>
+        <div id="fusion-history" class="panel-sub" style="margin-top:14px;"></div>
+        <button class="btn btn-ghost" onclick="recalibrateFusion(this)">Recalibrate from outcomes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-overlay" onclick="if(event.target===this) closeModal()">
+  <div id="modal"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" defer></script>
+<script>
+const GOOGLE_CLIENT_ID = '233695971962-8isndc6o3p4aflhpfah1o4oabf9rjm22.apps.googleusercontent.com';
+
+function initGoogleButton(){
+  if(!window.google || !window.google.accounts || !window.google.accounts.id){
+    return;
+  }
+  window.google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: async function(response){
+      const errEl = document.getElementById('login-error');
+      errEl.textContent = '';
+      try{
+        const tok = await api('/auth/google', {method:'POST', body: JSON.stringify({credential: response.credential})});
+        state.access = tok.access_token;
+        persistAetherSession(tok.access_token, rememberLoginSelected());
+        await enterApp();
+      }catch(e){
+        errEl.textContent = e.message;
+      }
+    }
+  });
+  window.google.accounts.id.renderButton(document.getElementById('google-btn-wrap'), {
+    theme: 'outline',
+    size: 'large',
+    width: Math.max(120, Math.round(document.getElementById('google-btn-wrap').getBoundingClientRect().width)),
+    text: 'continue_with',
+    shape: 'rectangular'
+  });
+}
+
+window.addEventListener('load', function(){
+  initGoogleButton();
+  initGitHubLoginButton();
+  initLoginParallax();
+});
+
+function initLoginParallax(){
+  const stage=document.getElementById('login-stage');
+  const imageLayer=document.getElementById('login-art-parallax');
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+  const finePointer=window.matchMedia('(pointer: fine)');
+  if(!stage||!imageLayer)return;
+  function move(event){
+    if(reduced.matches)return;
+    const bounds=stage.getBoundingClientRect();
+    const x=(event.clientX-bounds.left)/bounds.width-.5;
+    const y=(event.clientY-bounds.top)/bounds.height-.5;
+    imageLayer.style.transform='translate3d('+(x*8).toFixed(2)+'px,'+(y*8).toFixed(2)+'px,0) rotate('+(x*.8).toFixed(2)+'deg)';
+  }
+  function reset(){imageLayer.style.transform='';}
+  function syncPointer(){
+    if(reduced.matches||!finePointer.matches){
+      stage.removeEventListener('pointermove',move);
+      stage.removeEventListener('pointerleave',reset);
+      reset();
+    }else{
+      stage.addEventListener('pointermove',move,{passive:true});
+      stage.addEventListener('pointerleave',reset,{passive:true});
+    }
+  }
+  syncPointer();
+  reduced.addEventListener('change',syncPointer);
+  finePointer.addEventListener('change',syncPointer);
+}
+
+function defaultApiBase(){
+  const stored = localStorage.getItem('aetherai_api_base');
+  if(stored) return stored;
+  const proto = window.location.protocol === 'file:' ? 'http:' : window.location.protocol;
+  const host = (window.location.hostname && window.location.hostname !== '') ? window.location.hostname : 'localhost';
+  return proto + '//' + host + ':8000/api/v1';
+}
+let API = defaultApiBase();
+document.getElementById('api-base-input').value = API;
+
+function saveApiBase(){
+  const val = document.getElementById('api-base-input').value.trim().replace(/\/$/, '');
+  if(!val) return;
+  localStorage.setItem('aetherai_api_base', val);
+  API = val;
+  toast('API endpoint saved: ' + val);
+  checkConnectivity(true);
+}
+
+let state = {
+  access: null, githubAccess: null, mode: 'login', projectId: null, projects: [], pollTimer: null,
+  twinSimulation: null, memoryEntries: [], activeModule: null, simulationTimer: null, passwordResetToken: null,
+};
+
+function applyTheme(theme, persist){
+  const selected=theme==='light'?'light':'dark';
+  document.documentElement.dataset.theme=selected;
+  if(persist){try{localStorage.setItem('aetherai_theme',selected);}catch(e){}}
+  const nextMode=selected==='dark'?'Bright':'Dark';
+  const icon=selected==='dark'?'☀':'☾';
+  document.querySelectorAll('[data-theme-toggle]').forEach(function(button){
+    button.setAttribute('aria-label','Switch to '+nextMode.toLowerCase()+' mode');
+    button.title='Switch to '+nextMode.toLowerCase()+' mode';
+    button.querySelector('.theme-toggle-icon').textContent=icon;
+    button.querySelector('.theme-toggle-label').textContent=nextMode+' mode';
+  });
+}
+
+function toggleTheme(){
+  applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark',true);
+}
+
+applyTheme(document.documentElement.dataset.theme||'dark',false);
+
+function initGitHubLoginButton(){
+  const button = document.getElementById('github-login-btn');
+  const note = document.getElementById('github-login-note');
+  fetch(API + '/auth/github/config').then(function(response){
+    if(!response.ok) throw new Error('Could not read GitHub sign-in configuration');
+    return response.json();
+  }).then(function(config){
+    if(!config.configured){
+      button.disabled = true;
+      note.textContent = 'GitHub sign-in is not configured on the backend.';
+      note.style.display = 'block';
+    }
+  }).catch(function(){
+    button.disabled = true;
+    note.textContent = 'Cannot reach the backend to check GitHub sign-in.';
+    note.style.display = 'block';
+  });
+}
+
+function loginWithGitHub(){
+  sessionStorage.setItem('aetherai_remember_login_choice', rememberLoginSelected() ? 'true' : 'false');
+  window.location.assign(API + '/auth/github');
+}
+
+function toast(msg, isError){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  t.classList.toggle('error', !!isError);
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.classList.remove('show'); }, 4000);
+}
+
+async function checkConnectivity(manual){
+  const dot = document.getElementById('api-status-dot');
+  const banner = document.getElementById('conn-banner');
+  try{
+    const ctrl = new AbortController();
+    const timeout = setTimeout(function(){ ctrl.abort(); }, 4000);
+    const res = await fetch(API + '/monitoring/health', {signal: ctrl.signal});
+    clearTimeout(timeout);
+    if(!res.ok) throw new Error('unhealthy');
+    dot.className = 'ok';
+    banner.classList.remove('show');
+    if(manual) toast('Connected to ' + API);
+    return true;
+  }catch(e){
+    dot.className = 'bad';
+    document.getElementById('conn-banner-msg').textContent =
+      'Tried ' + API + ' -- make sure the backend is running (see README: docker compose up, or uvicorn app.main:app --port 8000) and that this address is reachable from your browser.';
+    banner.classList.add('show');
+    if(manual) toast('Still cannot reach ' + API, true);
+    return false;
+  }
+}
+
+function toggleMode(){
+  state.mode = state.mode === 'login' ? 'register' : 'login';
+  document.getElementById('login-card').classList.toggle('register-mode', state.mode === 'register');
+  document.getElementById('register-fields').style.display = state.mode === 'register' ? 'block' : 'none';
+  document.getElementById('form-title').textContent = state.mode === 'login' ? 'Sign in' : 'Create account';
+  document.getElementById('submit-btn').textContent = state.mode === 'login' ? 'Sign in' : 'Create account';
+  document.getElementById('submit-btn').setAttribute('aria-label', state.mode === 'login' ? 'Sign in' : 'Create account');
+  document.getElementById('mode-label').textContent = state.mode === 'login' ? 'Need an account?' : 'Already have one?';
+  document.getElementById('mode-toggle').textContent = state.mode === 'login' ? 'Register' : 'Sign in';
+  document.getElementById('login-error').textContent = '';
+}
+
+async function api(path, opts){
+  opts = opts || {};
+  opts.headers = Object.assign({'Content-Type':'application/json'}, opts.headers||{});
+  if(state.access) opts.headers['Authorization'] = 'Bearer ' + state.access;
+  let res;
+  try{
+    res = await fetch(API + path, opts);
+  }catch(networkErr){
+    checkConnectivity(false);
+    throw new Error("Can't reach the backend at " + API + ". Is it running? (" + networkErr.message + ")");
+  }
+  if(!res.ok){
+    let detail;
+    try{ detail = (await res.json()).detail; }catch(e){ detail = res.statusText; }
+    throw new Error(typeof detail === 'string' ? detail : JSON.stringify(detail));
+  }
+  if(res.status === 204) return null;
+  return res.json();
+}
+
+function rememberLoginSelected(){
+  return document.getElementById('remember-me').checked;
+}
+
+function persistAetherSession(accessToken, remember){
+  const storage = remember ? localStorage : sessionStorage;
+  const otherStorage = remember ? sessionStorage : localStorage;
+  storage.setItem('aetherai_token', accessToken);
+  otherStorage.removeItem('aetherai_token');
+}
+
+async function doLogin(){
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  const btn = document.getElementById('submit-btn');
+  errEl.textContent = '';
+  btn.disabled = true;
+  btn.setAttribute('aria-busy','true');
+  btn.innerHTML = '<span class="auth-button-spinner" aria-hidden="true"></span>'
+    + (state.mode === 'register' ? 'Creating account...' : 'Signing in...');
+  try{
+    if(state.mode === 'register'){
+      await api('/auth/register', {method:'POST', body: JSON.stringify({
+        email: email, password: password, full_name: document.getElementById('reg-name').value || email,
+        role: document.getElementById('reg-role').value,
+      })});
+    }
+    const tok = await api('/auth/login', {method:'POST', body: JSON.stringify({email: email, password: password})});
+    state.access = tok.access_token;
+    persistAetherSession(tok.access_token, rememberLoginSelected());
+    await enterApp();
+  }catch(e){ errEl.textContent = e.message; }
+  finally{
+    btn.disabled = false;
+    btn.removeAttribute('aria-busy');
+    btn.textContent = state.mode === 'register' ? 'Create account' : 'Sign in';
+  }
+}
+
+function logout(){
+  state.access = null; state.githubAccess = null;
+  localStorage.removeItem('aetherai_token');
+  sessionStorage.removeItem('aetherai_token');
+  sessionStorage.removeItem('aetherai_github_token');
+  sessionStorage.removeItem('aetherai_remember_login_choice');
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('login-screen').style.display = 'flex';
+  if(state.pollTimer) clearInterval(state.pollTimer);
+}
+
+async function enterApp(){
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').classList.add('active');
+  const me = await api('/auth/me');
+  document.getElementById('whoami').textContent = me.full_name + ' - ' + me.role;
+  await loadProjects();
+  state.pollTimer = setInterval(refreshCurrentSection, 9000);
+}
+
+async function loadProjects(){
+  state.projects = await api('/projects');
+  const sel = document.getElementById('project-select');
+  sel.innerHTML = state.projects.map(function(p){ return '<option value="'+p.id+'">'+escapeHtml(p.name)+(p.is_demo ? ' (demo)' : '')+'</option>'; }).join('');
+  if(state.projects.length){
+    state.projectId = (state.projectId && state.projects.find(function(p){return p.id===state.projectId;})) ? state.projectId : state.projects[0].id;
+    sel.value = state.projectId;
+  } else {
+    state.projectId = null;
+  }
+  refreshCurrentSection();
+}
+
+async function loadGitHubRepositories(){
+  const select = document.getElementById('github-repo-select');
+  const refreshButton = document.getElementById('github-repo-refresh');
+  if(!state.githubAccess){
+    select.innerHTML = '<option value="">Sign in with GitHub to load repositories</option>';
+    return;
+  }
+  refreshButton.disabled = true;
+  refreshButton.textContent = 'Loading...';
+  try{
+    const repositories = await api('/auth/github/repositories', {
+      headers: {'X-GitHub-Token': state.githubAccess}
+    });
+    select.innerHTML = '<option value="">Select a repository...</option>' + repositories.map(function(repo){
+      return '<option value="'+escapeHtml(repo.full_name)+'">'+escapeHtml(repo.full_name)+(repo.private ? ' (private)' : '')+'</option>';
+    }).join('');
+    if(!repositories.length) select.innerHTML = '<option value="">No repositories are available to this GitHub account</option>';
+    toast('Loaded ' + repositories.length + ' GitHub repositories');
+  }catch(e){
+    select.innerHTML = '<option value="">Repository lookup failed</option>';
+    toast(e.message, true);
+  }finally{
+    refreshButton.disabled = false;
+    refreshButton.textContent = 'Refresh';
+  }
+}
+
+function selectGitHubRepository(){
+  const selected = document.getElementById('github-repo-select').value;
+  if(selected) document.getElementById('connect-url-input').value = selected;
+}
+
+function escapeHtml(s){ return (s==null?'':s).toString().replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+
+function onProjectChange(){
+  state.projectId = document.getElementById('project-select').value;
+  refreshCurrentSection();
+}
+
+async function createProject(){
+  const modal = document.getElementById('modal');
+  modal.innerHTML = '<span id="modal-close" onclick="closeModal()">&times;</span><h2>New project</h2>'
+    + '<div class="modal-sub">Create a project workspace for repositories, risks, and recommendations.</div>'
+    + '<form id="project-create-form" onsubmit="submitProject(event)">'
+    + '<div class="field"><label for="project-name">Project name</label><input id="project-name" name="name" maxlength="160" required autocomplete="off" placeholder="e.g. Payments Platform"/></div>'
+    + '<div class="field"><label for="project-description">Description <span style="text-transform:none;">(optional)</span></label><input id="project-description" name="description" maxlength="500" autocomplete="off" placeholder="What does this project track?"/></div>'
+    + '<div id="project-create-error" class="modal-sub" style="color:var(--crit);"></div>'
+    + '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px;"><button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button><button type="submit" class="btn btn-primary" style="width:auto;">Create project</button></div>'
+    + '</form>';
+  document.getElementById('modal-overlay').classList.add('show');
+  document.getElementById('project-name').focus();
+}
+
+async function submitProject(event){
+  event.preventDefault();
+  const form = document.getElementById('project-create-form');
+  const name = document.getElementById('project-name').value.trim();
+  const description = document.getElementById('project-description').value.trim();
+  const error = document.getElementById('project-create-error');
+  const button = form.querySelector('button[type="submit"]');
+  if(!name){error.textContent='Enter a project name.';return;}
+  button.disabled = true;
+  button.textContent = 'Creating...';
+  error.textContent = '';
+  try{
+    const project = await api('/projects', {method:'POST', body:JSON.stringify({name:name,description:description})});
+    await loadProjects();
+    state.projectId = project.id;
+    document.getElementById('project-select').value = project.id;
+    closeModal();
+    switchSection('overview');
+    toast('Project created');
+  }catch(e){
+    error.textContent = e.message;
+    button.disabled = false;
+    button.textContent = 'Create project';
+  }
+}
+
+function showForgotPassword(){
+  const email=document.getElementById('login-email').value.trim();
+  document.getElementById('modal').innerHTML='<span id="modal-close" onclick="closeModal()">&times;</span><h2>Forgot password?</h2>'
+    + '<div class="modal-sub">Enter your account email and we will send a one-time password reset link if the account exists.</div>'
+    + '<form id="forgot-password-form" onsubmit="submitForgotPassword(event)">'
+    + '<div class="field"><label for="forgot-email">Email address</label><input id="forgot-email" type="email" required autocomplete="email" value="'+escapeHtml(email)+'" placeholder="you@company.com"/></div>'
+    + '<div id="forgot-password-status" class="modal-sub" role="status" aria-live="polite"></div>'
+    + '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px;"><button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button><button id="forgot-password-submit" type="submit" class="btn btn-primary" style="width:auto;">Send reset link</button></div>'
+    + '</form>';
+  document.getElementById('modal-overlay').classList.add('show');
+  document.getElementById('forgot-email').focus();
+}
+
+async function submitForgotPassword(event){
+  event.preventDefault();
+  const email=document.getElementById('forgot-email').value.trim();
+  const button=document.getElementById('forgot-password-submit');
+  const status=document.getElementById('forgot-password-status');
+  button.disabled=true;button.innerHTML='<span class="auth-button-spinner" aria-hidden="true"></span>Sending...';
+  status.textContent='';
+  try{
+    const result=await api('/auth/forgot-password',{method:'POST',body:JSON.stringify({email:email})});
+    status.textContent=result.message;
+  }catch(error){status.textContent=error.message;}
+  finally{button.disabled=false;button.textContent='Send reset link';}
+}
+
+function showPasswordResetForm(token){
+  state.passwordResetToken=token;
+  document.getElementById('modal').innerHTML='<span id="modal-close" onclick="closeModal()">&times;</span><h2>Choose a new password</h2>'
+    + '<div class="modal-sub">Reset links expire after one hour and can be used once.</div>'
+    + '<form id="password-reset-form" onsubmit="submitPasswordReset(event)">'
+    + '<div class="field"><label for="reset-password">New password</label><input id="reset-password" type="password" required minlength="8" maxlength="128" autocomplete="new-password"/></div>'
+    + '<div class="field"><label for="reset-password-confirm">Confirm new password</label><input id="reset-password-confirm" type="password" required minlength="8" maxlength="128" autocomplete="new-password"/></div>'
+    + '<div id="password-reset-status" class="modal-sub" role="status" aria-live="polite"></div>'
+    + '<button id="password-reset-submit" type="submit" class="btn btn-primary" style="width:auto;">Reset password</button></form>';
+  document.getElementById('modal-overlay').classList.add('show');
+  document.getElementById('reset-password').focus();
+}
+
+async function submitPasswordReset(event){
+  event.preventDefault();
+  const password=document.getElementById('reset-password').value;
+  const confirmation=document.getElementById('reset-password-confirm').value;
+  const status=document.getElementById('password-reset-status');
+  const button=document.getElementById('password-reset-submit');
+  if(password!==confirmation){status.textContent='Passwords do not match.';return;}
+  button.disabled=true;button.innerHTML='<span class="auth-button-spinner" aria-hidden="true"></span>Resetting...';
+  status.textContent='';
+  try{
+    const result=await api('/auth/reset-password',{method:'POST',body:JSON.stringify({token:state.passwordResetToken,new_password:password})});
+    state.passwordResetToken=null;
+    closeModal();
+    if(state.mode==='register')toggleMode();
+    document.getElementById('login-error').textContent=result.message;
+    document.getElementById('login-email').focus();
+  }catch(error){status.textContent=error.message;}
+  finally{button.disabled=false;button.textContent='Reset password';}
+}
+
+async function seedDemo(){
+  toast('Seeding reproducible demo project through the real pipeline...');
+  try{
+    const res = await api('/demo/seed', {method:'POST'});
+    toast('Demo project seeded: ' + res.modules_seeded + ' modules, ' + res.predictions.length + ' real predictions');
+    await loadProjects();
+    state.projectId = res.project_id;
+    document.getElementById('project-select').value = res.project_id;
+    refreshCurrentSection();
+  }catch(e){ toast(e.message, true); }
+}
+
+function setProgressStep(stepName, status){
+  document.querySelectorAll('#connect-progress .progress-step').forEach(function(el){
+    if(el.dataset.step === stepName){ el.classList.remove('active','done'); el.classList.add(status); }
+  });
+}
+function markAllProgressDone(){
+  document.querySelectorAll('#connect-progress .progress-step').forEach(function(el){ el.classList.remove('active'); el.classList.add('done'); });
+}
+function resetProgress(){
+  document.querySelectorAll('#connect-progress .progress-step').forEach(function(el){ el.classList.remove('active','done'); });
+}
+
+async function runConnectAndSync(){
+  const raw = document.getElementById('connect-url-input').value.trim();
+  if(!raw){ toast('Paste a GitHub link first', true); return; }
+  const btn = document.getElementById('connect-btn');
+  const progress = document.getElementById('connect-progress');
+  const resultEl = document.getElementById('connect-result');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Analyzing...';
+  progress.style.display = 'flex';
+  resultEl.style.display = 'none';
+  resetProgress();
+  setProgressStep('connect', 'active');
+
+  const timers = [
+    setTimeout(function(){ setProgressStep('connect','done'); setProgressStep('commits','active'); }, 400),
+    setTimeout(function(){ setProgressStep('commits','done'); setProgressStep('analyze','active'); }, 1400),
+    setTimeout(function(){ setProgressStep('analyze','done'); setProgressStep('predict','active'); }, 2600),
+    setTimeout(function(){ setProgressStep('predict','done'); setProgressStep('recommend','active'); }, 3600),
+  ];
+
+  try{
+    const body = {full_name: raw, provider: 'github', max_files: 15};
+    if(state.projectId){
+      const currentProj = state.projects.find(function(p){return p.id===state.projectId;});
+      if(confirm('Add this repository to the currently-selected project ("' + (currentProj ? currentProj.name : '') + '")?\n\nCancel to create a new project for it instead.')){
+        body.project_id = state.projectId;
+      }
+    }
+    const headers = state.githubAccess ? {'X-GitHub-Token': state.githubAccess} : {};
+    const res = await api('/repositories/connect-and-sync', {method:'POST', headers: headers, body: JSON.stringify(body)});
+    timers.forEach(clearTimeout);
+    markAllProgressDone();
+
+    const avgRisk = res.predictions.length ? res.predictions.reduce(function(a,p){return a+p.probability;},0)/res.predictions.length : null;
+    const topRisky = res.predictions.slice().sort(function(a,b){return b.probability-a.probability;}).slice(0,5);
+
+    let html = '<div class="connect-result-grid">'
+      + '<div class="connect-result-stat"><div class="n">'+res.modules_analyzed+'</div><div class="l">modules analyzed</div></div>'
+      + '<div class="connect-result-stat"><div class="n">'+res.new_commits+'</div><div class="l">new commits ingested</div></div>'
+      + '<div class="connect-result-stat"><div class="n">'+(avgRisk!=null ? Math.round(avgRisk*100)+'%' : '--')+'</div><div class="l">avg defect risk</div></div>'
+      + '<div class="connect-result-stat"><div class="n">'+res.predictions.reduce(function(a,p){return a+p.recommendations_created;},0)+'</div><div class="l">recommendations generated</div></div>'
+      + '</div>';
+    if(res.github_metadata){
+      html += '<div style="font-size:12px;color:var(--muted);margin-bottom:14px;">'+escapeHtml(res.github_metadata.description||'')+' '+(res.github_metadata.language ? '- '+res.github_metadata.language : '')+' '+(res.github_metadata.stars!=null ? '- star '+res.github_metadata.stars : '')+'</div>';
+    }
+    if(topRisky.length){
+      html += '<h4 style="font-size:11px;text-transform:uppercase;color:var(--dim);font-family:var(--font-mono);margin-bottom:10px;">Highest-risk modules found</h4>';
+      html += topRisky.map(function(p){
+        return '<div style="display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid var(--border);font-size:12.5px;">'
+          + '<span class="mono">'+escapeHtml(p.module)+'</span>'
+          + '<span class="mono" style="color:'+riskColor(p.probability)+'">'+Math.round(p.probability*100)+'%</span></div>';
+      }).join('');
+    }
+    html += '<div style="margin-top:16px;"><button class="btn btn-primary" style="width:auto;" onclick="switchSection(\'code-risk\')">View full Code Risk breakdown</button></div>';
+
+    resultEl.innerHTML = html;
+    resultEl.style.display = 'block';
+    toast('Analyzed ' + res.repository.full_name + ': ' + res.modules_analyzed + ' modules, real predictions generated');
+    await loadProjects();
+    state.projectId = res.project.id;
+    document.getElementById('project-select').value = res.project.id;
+  }catch(e){
+    timers.forEach(clearTimeout);
+    resetProgress();
+    resultEl.innerHTML = '<div class="empty-state" style="color:var(--crit)">'+escapeHtml(e.message)+'</div>';
+    resultEl.style.display = 'block';
+    toast(e.message, true);
+  }finally{
+    btn.disabled = false; btn.textContent = 'Analyze Repository';
+  }
+}
+
+function riskColor(p){
+  if(p === null || p === undefined) return 'var(--dim)';
+  if(p >= 0.7) return 'var(--crit)';
+  if(p >= 0.5) return 'var(--high)';
+  if(p >= 0.3) return 'var(--med)';
+  return 'var(--low)';
+}
+function severityPill(sev){ return '<span class="pill pill-'+sev+'">'+sev+'</span>'; }
+function statusPill(st){ return '<span class="pill pill-'+st+'">'+st.replace(/_/g,' ')+'</span>'; }
+
+function switchSection(name){
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.toggle('active', n.dataset.section === name); });
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.toggle('active', s.id === 'section-' + name); });
+  document.getElementById('page-title').textContent = document.querySelector('.nav-item[data-section="'+name+'"]').textContent.trim();
+  refreshCurrentSection();
+}
+
+function currentSection(){
+  return document.querySelector('.nav-item.active').dataset.section;
+}
+
+async function refreshCurrentSection(){
+  const s = currentSection();
+  if(!state.projectId){
+    if(s === 'twin'){
+      document.getElementById('twin-graph-wrap').style.display = 'none';
+      document.getElementById('twin-empty').textContent = 'Create a project and connect a repository to build a real digital twin.';
+      document.getElementById('twin-empty').style.display = 'block';
+    } else if(s === 'memory'){
+      document.getElementById('memory-empty').textContent = 'Create a project to view its recorded history.';
+      document.getElementById('memory-empty').style.display = 'block';
+    } else {
+      document.getElementById('overview-cards').innerHTML = '<div class="empty-state">No projects yet -- seed the demo project or connect a GitHub repo to get started.</div>';
+    }
+    return;
+  }
+  try{
+    if(s === 'overview') await renderOverview();
+    else if(s === 'code-risk') await renderCodeRisk();
+    else if(s === 'twin') await renderTwinGraph();
+    else if(s === 'memory') await renderMemory();
+    else if(s === 'recommendations') await renderRecommendations();
+    else if(s === 'security') await renderSecurity();
+    else if(s === 'anomalies') await renderAnomalies();
+    else if(s === 'issues') await renderIssues();
+    else if(s === 'tasks') await renderTasks();
+    else if(s === 'events') await renderEvents();
+    else if(s === 'models') await renderModels();
+  }catch(e){ console.error(e); }
+}
+
+async function renderTwinGraph(at){
+  const empty = document.getElementById('twin-empty');
+  const wrap = document.getElementById('twin-graph-wrap');
+  if(!state.projectId) return;
+  empty.style.display = 'none';
+  try{
+    let endpoint = '/twin/graph?project_id='+encodeURIComponent(state.projectId);
+    if(at){
+      const params = new URLSearchParams({project_id: state.projectId, at: at});
+      endpoint = '/twin/snapshot?'+params.toString();
+    }
+    const graph = await api(endpoint);
+    document.getElementById('twin-count').textContent = '('+graph.nodes.length+' nodes, '+graph.edges.length+' edges'+(graph.snapshot_at ? ', '+new Date(graph.snapshot_at).toLocaleString() : '')+')';
+    if(!graph.nodes.length){
+      wrap.style.display = 'none';
+      empty.textContent = 'No analyzed modules or other graph evidence exists for this project yet.';
+      empty.style.display = 'block';
+      return;
+    }
+    if(!window.d3){
+      wrap.style.display = 'none';
+      empty.textContent = 'The graph renderer could not load. Check network access to the D3 library and retry.';
+      empty.style.display = 'block';
+      return;
+    }
+    wrap.style.display = 'block';
+    drawTwinGraph(graph);
+  }catch(e){
+    wrap.style.display = 'none';
+    empty.textContent = e.message;
+    empty.style.display = 'block';
+  }
+}
+
+function loadTwinSnapshot(){
+  const value = document.getElementById('twin-snapshot-date').value;
+  if(!value){ toast('Choose a historical date first', true); return; }
+  renderTwinGraph(value+':00');
+}
+
+function drawTwinGraph(graph){
+  const container = document.getElementById('twin-graph-wrap');
+  const width = Math.max(container.clientWidth, 320);
+  const height = Math.max(container.clientHeight, 360);
+  const svg = d3.select('#twin-graph').attr('viewBox', '0 0 '+width+' '+height);
+  svg.selectAll('*').remove();
+  if(state.twinSimulation) state.twinSimulation.stop();
+  const nodes = graph.nodes.map(function(node){ return Object.assign({}, node); });
+  const links = graph.edges.map(function(edge){ return Object.assign({}, edge, {source: edge.source_id, target: edge.target_id}); });
+  const byId = new Map(nodes.map(function(node){ return [node.id, node]; }));
+  const nodeColor = function(node){
+    if(node.node_type === 'contributor') return '#7aa2f7';
+    if(node.node_type === 'issue') return '#e5484d';
+    if(node.node_type === 'task') return '#b48ead';
+    const risk = node.attributes.risk;
+    if(risk == null) return '#8695a7';
+    return d3.scaleLinear().domain([0,0.5,1]).range(['#4fd1c5','#f0c846','#e5484d']).clamp(true)(risk);
+  };
+  const radius = function(node){
+    if(node.node_type === 'module') return Math.max(6, Math.min(28, Math.sqrt(Math.max(1,node.attributes.loc||1))*0.7));
+    if(node.node_type === 'contributor') return Math.max(7, Math.min(18, 6+Math.sqrt(node.attributes.commit_count||0)));
+    return 8;
+  };
+  const edgeLayer = svg.append('g');
+  const link = edgeLayer.selectAll('line').data(links).join('line')
+    .attr('class', function(edge){ return 'twin-edge '+edge.edge_type; })
+    .attr('stroke-width', function(edge){ return 1+Math.min(5,Math.log1p(edge.weight||1)); });
+  const nodeLayer = svg.append('g');
+  const node = nodeLayer.selectAll('g').data(nodes).join('g').attr('class','twin-node');
+  node.append('circle').attr('r',radius).attr('fill',nodeColor).on('click',function(event,item){
+    const attrs = item.attributes;
+    const details = item.node_type === 'module'
+      ? attrs.path+' | '+(attrs.loc||0)+' LOC | risk '+(attrs.risk==null?'not predicted':Math.round(attrs.risk*100)+'%')+' | complexity '+attrs.cyclomatic_complexity
+      : item.node_type === 'contributor' ? attrs.name+' | '+attrs.commit_count+' real commits'
+      : item.node_type === 'issue' ? attrs.title+' | '+attrs.severity+' | '+attrs.status
+      : attrs.title+' | '+attrs.status;
+    document.getElementById('twin-node-detail').textContent = details;
+  });
+  node.append('title').text(function(item){ return item.node_type+': '+item.ref_id; });
+  node.append('text').attr('dy',function(item){ return radius(item)+13; }).attr('text-anchor','middle')
+    .text(function(item){ return item.node_type === 'module' ? item.attributes.path.split('/').pop() : (item.attributes.name||item.attributes.title||item.node_type); });
+  state.twinSimulation = d3.forceSimulation(nodes)
+    .force('link',d3.forceLink(links).id(function(item){return item.id;}).distance(function(edge){return edge.edge_type==='co_change'?100:140;}).strength(0.45))
+    .force('charge',d3.forceManyBody().strength(-230))
+    .force('center',d3.forceCenter(width/2,height/2))
+    .force('collide',d3.forceCollide().radius(function(item){return radius(item)+16;}))
+    .on('tick',function(){
+      link.attr('x1',function(edge){return edge.source.x;}).attr('y1',function(edge){return edge.source.y;})
+        .attr('x2',function(edge){return edge.target.x;}).attr('y2',function(edge){return edge.target.y;});
+      node.attr('transform',function(item){
+        item.x=Math.max(30,Math.min(width-30,item.x)); item.y=Math.max(30,Math.min(height-30,item.y));
+        return 'translate('+item.x+','+item.y+')';
+      });
+    });
+  node.call(d3.drag().on('start',function(event,item){if(!event.active)state.twinSimulation.alphaTarget(0.25).restart();item.fx=item.x;item.fy=item.y;})
+    .on('drag',function(event,item){item.fx=event.x;item.fy=event.y;})
+    .on('end',function(event,item){if(!event.active)state.twinSimulation.alphaTarget(0);item.fx=null;item.fy=null;}));
+}
+
+async function renderMemory(){
+  if(!state.projectId) return;
+  const params = new URLSearchParams({project_id: state.projectId});
+  const from = document.getElementById('memory-from').value;
+  const to = document.getElementById('memory-to').value;
+  if(from) params.set('from',from+'T00:00:00');
+  if(to) params.set('to',to+'T00:00:00');
+  try{
+    const result = await api('/memory/timeline?'+params.toString());
+    state.memoryEntries = result.timeline;
+    document.getElementById('memory-count').textContent = '('+result.count+' entries)';
+    document.getElementById('memory-empty').style.display = result.count ? 'none' : 'block';
+    document.getElementById('memory-empty').textContent = 'No persisted events, predictions, or recommendation outcomes in this date range.';
+    filterMemoryTimeline();
+  }catch(e){
+    document.getElementById('memory-empty').textContent = e.message;
+    document.getElementById('memory-empty').style.display = 'block';
+    document.getElementById('memory-timeline').innerHTML = '';
+  }
+}
+
+function filterMemoryTimeline(){
+  const query = document.getElementById('memory-filter').value.trim().toLowerCase();
+  const entries = state.memoryEntries.filter(function(entry){
+    return !query || (entry.summary+' '+entry.kind+' '+JSON.stringify(entry.evidence)).toLowerCase().includes(query);
+  });
+  document.getElementById('memory-timeline').innerHTML = entries.map(function(entry){
+    return '<article class="memory-entry"><time class="memory-time">'+new Date(entry.timestamp).toLocaleString()+'</time>'
+      + '<span class="pill pill-'+(entry.kind==='recommendation'?'accepted':'pending')+'">'+escapeHtml(entry.kind)+'</span>'
+      + '<div class="memory-summary">'+escapeHtml(entry.summary)+'</div>'
+      + '<details class="memory-evidence"><summary>Source evidence</summary>'+escapeHtml(JSON.stringify(entry.evidence,null,2))+'</details></article>';
+  }).join('') || (state.memoryEntries.length ? '<div class="empty-state">No entries match this filter.</div>' : '');
+}
+
+function exportMemoryReport(){
+  if(!state.memoryEntries.length){toast('No timeline data to export',true);return;}
+  const lines=['# AetherAI Project Memory','', 'Project: '+state.projectId, 'Exported: '+new Date().toISOString(), ''];
+  state.memoryEntries.forEach(function(entry){
+    lines.push('## '+new Date(entry.timestamp).toLocaleString()+' | '+entry.kind,'',entry.summary,'', 'Evidence: `'+JSON.stringify(entry.evidence)+'`','');
+  });
+  const link=document.createElement('a');
+  link.href=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/markdown'}));
+  link.download='aetherai-project-memory.md'; link.click(); URL.revokeObjectURL(link.href);
+}
+
+async function renderOverview(){
+  const health = await api('/projects/'+state.projectId+'/health');
+  const recs = await api('/recommendations?project_id='+state.projectId);
+  const repos = await api('/repositories?project_id='+state.projectId);
+  const timeline = await api('/projects/'+state.projectId+'/risk-timeline');
+
+  const cards = [];
+  const hClass = health.health_score==null ? '' : health.health_score<50 ? 'crit' : health.health_score<75 ? 'high' : 'ok';
+  cards.push('<div class="card"><div class="label">Project Health</div><div class="value '+hClass+'">'+(health.health_score ?? '--')+(health.health_score!==null?'<small>/100</small>':'')+'</div></div>');
+  cards.push('<div class="card"><div class="label">Avg Defect Risk</div><div class="value">'+(health.raw_signals && health.raw_signals.avg_predicted_defect_risk!=null ? Math.round(health.raw_signals.avg_predicted_defect_risk*100)+'%' : '--')+'</div></div>');
+  cards.push('<div class="card"><div class="label">Open Bugs</div><div class="value">'+((health.raw_signals && health.raw_signals.open_bugs) || 0)+'<small>/'+((health.raw_signals && health.raw_signals.total_issues) || 0)+'</small></div></div>');
+  cards.push('<div class="card"><div class="label">Critical Security</div><div class="value '+(((health.raw_signals && health.raw_signals.open_critical_security_findings)||0)>0?'crit':'')+'">'+((health.raw_signals && health.raw_signals.open_critical_security_findings) || 0)+'</div></div>');
+  cards.push('<div class="card"><div class="label">Recommendations</div><div class="value">'+recs.filter(function(r){return r.status==='pending';}).length+'<small>pending</small></div></div>');
+  cards.push('<div class="card"><div class="label">Repositories</div><div class="value">'+repos.length+'</div></div>');
+  document.getElementById('overview-cards').innerHTML = cards.join('');
+
+  const detailEl = document.getElementById('health-detail');
+  if(!health.components || Object.keys(health.components).length === 0){
+    detailEl.innerHTML = '<div class="empty-state">'+(health.message || 'No signals yet.')+'</div>';
+  } else {
+    detailEl.innerHTML = '<div class="health-breakdown">' + Object.entries(health.components).map(function(entry){
+      const k = entry[0], v = entry[1];
+      return '<div class="health-item"><div class="h-label">'+k.replace(/_/g,' ')+'</div><div class="h-bar"><i style="width:'+v+'%"></i></div><div class="h-val">'+v+'/100</div></div>';
+    }).join('') + '</div>';
+  }
+
+  document.getElementById('timeline-count').textContent = (timeline.series && timeline.series.length) ? '('+timeline.series.length+' days)' : '';
+  drawRiskChart(timeline.series || []);
+  document.getElementById('timeline-empty').style.display = (timeline.series && timeline.series.length) ? 'none' : 'block';
+  document.getElementById('risk-chart').style.display = (timeline.series && timeline.series.length) ? 'block' : 'none';
+
+  document.getElementById('repo-list').innerHTML = repos.map(function(r){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--border);font-size:13px;">'
+      + '<span class="mono">'+escapeHtml(r.full_name)+'</span>'
+      + '<span style="display:flex;align-items:center;gap:10px;">'
+      + '<span style="color:var(--dim);font-size:12px;">'+(r.last_synced_at ? 'synced ' + new Date(r.last_synced_at).toLocaleString() : 'not synced')+'</span>'
+      + '<button class="btn btn-ghost btn-sm" onclick="resyncRepo(\''+r.id+'\')">Re-sync</button></span></div>';
+  }).join('') || '<div class="empty-state">No repositories connected yet. Go to <b style="color:var(--accent);cursor:pointer;" onclick="switchSection(\'connect\')">Connect Repo</b> to add one.</div>';
+}
+
+async function resyncRepo(id){
+  toast('Re-syncing repository...');
+  try{
+    const headers = state.githubAccess ? {'X-GitHub-Token': state.githubAccess} : {};
+    const res = await api('/repositories/'+id+'/sync?max_files=15', {method:'POST', headers: headers});
+    toast('Re-synced: ' + res.modules_analyzed + ' modules, ' + res.new_commits + ' new commits');
+    refreshCurrentSection();
+  }catch(e){ toast(e.message, true); }
+}
+
+function drawRiskChart(series){
+  const canvas = document.getElementById('risk-chart');
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth || 600, h = 140;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0,0,w,h);
+  if(!series.length) return;
+
+  const pad = {l: 34, r: 10, t: 12, b: 22};
+  const plotW = w - pad.l - pad.r, plotH = h - pad.t - pad.b;
+  const maxVal = 1;
+  const points = series.map(function(s,i){
+    return {
+      x: pad.l + (series.length===1 ? plotW/2 : (i/(series.length-1))*plotW),
+      y: pad.t + plotH - (s.avg_risk/maxVal)*plotH,
+      v: s.avg_risk, date: s.date,
+    };
+  });
+
+  ctx.strokeStyle = '#232E3B'; ctx.lineWidth = 1;
+  [0,0.25,0.5,0.75,1].forEach(function(f){
+    const y = pad.t + plotH - f*plotH;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w-pad.r, y); ctx.stroke();
+    ctx.fillStyle = '#586576'; ctx.font = '10px "IBM Plex Mono"'; ctx.textAlign = 'right';
+    ctx.fillText(Math.round(f*100)+'%', pad.l - 6, y+3);
+  });
+
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, pad.t+plotH);
+  points.forEach(function(p){ ctx.lineTo(p.x, p.y); });
+  ctx.lineTo(points[points.length-1].x, pad.t+plotH);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0,pad.t,0,pad.t+plotH);
+  grad.addColorStop(0, 'rgba(79,209,197,0.22)'); grad.addColorStop(1, 'rgba(79,209,197,0)');
+  ctx.fillStyle = grad; ctx.fill();
+
+  ctx.beginPath();
+  points.forEach(function(p,i){ i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y); });
+  ctx.strokeStyle = '#4FD1C5'; ctx.lineWidth = 2; ctx.lineJoin='round'; ctx.stroke();
+
+  points.forEach(function(p){
+    ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2);
+    ctx.fillStyle = '#0B0F14'; ctx.fill();
+    ctx.lineWidth = 1.5; ctx.strokeStyle = '#4FD1C5'; ctx.stroke();
+  });
+
+  ctx.fillStyle = '#586576'; ctx.font = '10px "IBM Plex Mono"'; ctx.textAlign = 'left';
+  ctx.fillText(points[0].date, points[0].x, h - 4);
+  if(points.length > 1){
+    ctx.textAlign = 'right';
+    ctx.fillText(points[points.length-1].date, points[points.length-1].x, h - 4);
+  }
+}
+
+async function renderCodeRisk(){
+  const rows = await api('/code-risk?project_id='+state.projectId);
+  document.getElementById('code-risk-count').textContent = '('+rows.length+' modules)';
+  document.getElementById('code-risk-table').querySelector('tbody').innerHTML = rows.map(function(r){
+    const predArg = r.prediction_id ? "'"+r.prediction_id+"'" : 'null';
+    return '<tr class="clickable" onclick="openModuleModal(\''+escapeHtml(r.path).replace(/'/g,"\\'")+'\', '+predArg+')">'
+      + '<td class="mono">'+escapeHtml(r.path)+'</td>'
+      + '<td><div class="risk-bar-wrap"><div class="risk-bar"><i style="width:'+((r.defect_probability||0)*100)+'%;background:'+riskColor(r.defect_probability)+'"></i></div>'
+      + '<span class="risk-pct">'+(r.defect_probability!=null ? Math.round(r.defect_probability*100)+'%' : '--')+'</span></div></td>'
+      + '<td class="mono">'+(r.cyclomatic_complexity!=null ? r.cyclomatic_complexity.toFixed(1) : '--')+'</td>'
+      + '<td class="mono">'+(r.churn_30d || 0)+'</td>'
+      + '<td class="mono">'+(r.test_coverage!=null ? Math.round(r.test_coverage*100)+'%' : '--')+'</td>'
+      + '<td class="mono">'+(r.num_authors || 0)+'</td></tr>';
+  }).join('') || '<tr><td colspan="6" class="empty-state">No modules analyzed yet. Connect a repository or seed the demo project.</td></tr>';
+}
+
+async function openModuleModal(path, predictionId){
+  const overlay = document.getElementById('modal-overlay');
+  const modal = document.getElementById('modal');
+  state.activeModule = {path:path, predictionId:predictionId, features:null, explanation:null, recommendations:[]};
+  modal.innerHTML = '<span id="modal-close" onclick="closeModal()">&times;</span><h2>'+escapeHtml(path)+'</h2><div class="modal-sub">Loading module evidence...</div>';
+  overlay.classList.add('show');
+  try{
+    const results=await Promise.all([
+      api('/code-risk?project_id='+state.projectId),
+      api('/recommendations?project_id='+state.projectId),
+      predictionId?api('/explanations/'+predictionId):Promise.resolve(null),
+    ]);
+    const row=results[0].find(function(item){return item.path===path;});
+    if(!row)throw new Error('Module evidence is no longer available in this project');
+    state.activeModule.features={
+      loc:row.loc,cyclomatic_complexity:row.cyclomatic_complexity,num_functions:row.num_functions,
+      churn_30d:row.churn_30d,num_commits:row.num_commits,num_authors:row.num_authors,
+      historical_defects:row.historical_defects,test_coverage:row.test_coverage,
+    };
+    state.activeModule.explanation=results[2];
+    state.activeModule.recommendations=results[1].filter(function(item){return item.related_ref===path;});
+    modal.innerHTML='<span id="modal-close" onclick="closeModal()">&times;</span><h2>'+escapeHtml(path)+'</h2>'
+      +'<div class="module-tabs"><button class="module-tab active" data-module-tab="explanation" onclick="showModuleTab(\'explanation\')">Explanation</button>'
+      +'<button class="module-tab" data-module-tab="whatif" onclick="showModuleTab(\'whatif\')">What If?</button>'
+      +'<button class="module-tab" data-module-tab="blast" onclick="showModuleTab(\'blast\')">Blast Radius</button></div><div id="module-tab-content"></div>';
+    showModuleTab('explanation');
+  }catch(e){
+    modal.innerHTML = '<span id="modal-close" onclick="closeModal()">&times;</span><h2>'+escapeHtml(path)+'</h2><div class="modal-sub" style="color:var(--crit)">'+escapeHtml(e.message)+'</div>';
+  }
+}
+function moduleExplanationMarkup(){
+  const active=state.activeModule, expl=active.explanation, recs=active.recommendations;
+  if(!expl)return '<div class="empty-state">No real prediction exists for this module yet.</div>';
+  const factors=(expl.top_positive_factors||[]).map(function(item){return Object.assign({},item,{dir:'pos'});})
+    .concat((expl.top_negative_factors||[]).map(function(item){return Object.assign({},item,{dir:'neg'});}));
+  let maxAbs=0.001;
+  factors.forEach(function(item){maxAbs=Math.max(maxAbs,Math.abs(item.shap_value));});
+  let html='<div class="modal-sub">'+escapeHtml(expl.explanation_text||'')+'</div><div class="modal-section"><h4>SHAP feature contributions</h4>';
+  html+=factors.length?factors.map(function(item){
+    return '<div class="factor-bar-row"><div class="fname">'+escapeHtml(item.feature.replace(/_/g,' '))+'</div>'
+      + '<div class="factor-bar-track"><div class="factor-mid-line"></div><div class="factor-bar-fill '+item.dir+'" style="width:'+((Math.abs(item.shap_value)/maxAbs)*48)+'%;"></div></div>'
+      + '<div class="mono" style="width:50px;text-align:right;">'+(item.shap_value>0?'+':'')+item.shap_value+'</div></div>';
+  }).join(''):'<div class="empty-state">No SHAP factors recorded.</div>';
+  html+='</div><div class="modal-section"><h4>Related recommendations ('+recs.length+')</h4>';
+  html+=recs.length?recs.map(function(item){
+    return '<div style="padding:8px 0;border-top:1px solid var(--border);font-size:12.5px;"><b>'+escapeHtml(item.recommended_action)+'</b> '+statusPill(item.status)+'<br/><span style="color:var(--muted)">'+escapeHtml(item.reason)+'</span></div>';
+  }).join(''):'<div class="empty-state">No recommendations tied to this module.</div>';
+  return html+'</div>';
+}
+
+function showModuleTab(name){
+  if(!state.activeModule)return;
+  document.querySelectorAll('.module-tab').forEach(function(button){button.classList.toggle('active',button.dataset.moduleTab===name);});
+  const content=document.getElementById('module-tab-content');
+  if(name==='explanation')content.innerHTML=moduleExplanationMarkup();
+  else if(name==='whatif'){
+    content.innerHTML=moduleSimulatorMarkup();
+    clearTimeout(state.simulationTimer);
+    state.simulationTimer=setTimeout(runModuleSimulation,180);
+  }
+  else{content.innerHTML='<div class="modal-sub">Only modules with repeated shared-file commits appear here. Propagation is capped at three hops.</div><div id="blast-results" class="empty-state">Loading real co-change evidence...</div>';loadModuleBlastRadius();}
+}
+
+function moduleSimulatorMarkup(){
+  const features=state.activeModule.features;
+  const fields=[['loc','Lines of code',1000,10],['cyclomatic_complexity','Cyclomatic complexity',40,1],['num_functions','Functions',100,1],['churn_30d','Recent churn',200,1],['num_commits','Commits',100,1],['num_authors','Authors',30,1],['historical_defects','Historical defects',20,1],['test_coverage','Test coverage',1,0.01]];
+  const sliders=fields.map(function(field){
+    const key=field[0],value=Number(features[key]||0),max=Math.max(field[2],value*2||field[3]);
+    const display=key==='test_coverage'?Math.round(value*100)+'%':value;
+    return '<div class="sim-slider"><label for="sim-'+key+'">'+field[1]+'</label><input id="sim-'+key+'" type="range" min="0" max="'+max+'" step="'+field[3]+'" value="'+value+'" oninput="updateSimulationSlider(\''+key+'\',this.value)"><output class="sim-value" id="sim-value-'+key+'">'+display+'</output></div>';
+  }).join('');
+  return '<div class="modal-sub">Adjust the real module features. The trained champion model and SHAP explainer score this vector; no prediction row is saved.</div>'
+    + '<div class="sim-risk"><b>Hypothetical - not a real observation</b><div style="display:flex;justify-content:space-between;margin-top:10px;font-family:var(--font-mono);font-size:12px;"><span>Estimated defect risk</span><span id="sim-risk-label">Calculating...</span></div><div class="sim-risk-track"><div id="sim-risk-fill"></div></div><div id="sim-explanation" class="panel-sub" style="margin:10px 0 0;"></div></div>'
+    + sliders+'<div id="sim-error" class="modal-sub" style="color:var(--crit);"></div>';
+}
+
+function updateSimulationSlider(key,value){
+  const numeric=Number(value);state.activeModule.features[key]=numeric;
+  document.getElementById('sim-value-'+key).textContent=key==='test_coverage'?Math.round(numeric*100)+'%':numeric;
+  clearTimeout(state.simulationTimer);state.simulationTimer=setTimeout(runModuleSimulation,180);
+}
+
+async function runModuleSimulation(){
+  if(!state.activeModule||!document.getElementById('sim-risk-label'))return;
+  try{
+    const result=await api('/predictions/simulate',{method:'POST',body:JSON.stringify(Object.assign({project_id:state.projectId,module_path:state.activeModule.path},state.activeModule.features))});
+    const percent=Math.round(result.probability*100);
+    const label=document.getElementById('sim-risk-label'),fill=document.getElementById('sim-risk-fill');
+    if(!label||!fill)return;
+    label.textContent=percent+'%';fill.style.width=percent+'%';fill.style.background=riskColor(result.probability);
+    document.getElementById('sim-explanation').textContent=result.explanation_text+' Hypothetical - not a real observation.';
+    document.getElementById('sim-error').textContent='';
+  }catch(error){
+    const message=document.getElementById('sim-error'),label=document.getElementById('sim-risk-label');
+    if(message)message.textContent=error.message;if(label)label.textContent='Unavailable';
+  }
+}
+
+async function loadModuleBlastRadius(){
+  const active=state.activeModule,target=document.getElementById('blast-results');
+  try{
+    const endpoint='/code-risk/'+encodeURIComponent(active.path)+'/blast-radius?project_id='+encodeURIComponent(state.projectId);
+    const result=await api(endpoint);
+    if(!document.getElementById('blast-results'))return;
+    target.innerHTML=result.results.length?result.results.map(function(item){
+      return '<div class="memory-entry"><span class="mono">'+escapeHtml(item.module_path)+'</span><span class="pill pill-high">'+Math.round(item.propagated_risk_contribution*100)+'% contribution</span><span class="memory-summary">'+escapeHtml(item.evidence)+'; '+item.hops+' hop(s)</span></div>';
+    }).join(''):'No modules meet the repeated co-change evidence threshold.';
+  }catch(error){if(target)target.textContent=error.message;}
+}
+
+function closeModal(){ document.getElementById('modal-overlay').classList.remove('show'); }
+
+async function renderRecommendations(){
+  const recs = await api('/recommendations?project_id='+state.projectId);
+  document.getElementById('rec-count').textContent = '('+recs.length+')';
+  document.getElementById('rec-list').innerHTML = recs.map(function(r){
+    let actions = '';
+    if(r.status === 'pending'){
+      actions = '<button class="btn btn-ghost btn-sm" onclick="updateRec(\''+r.id+'\',\'accepted\')">Accept</button><button class="btn btn-ghost btn-sm" onclick="updateRec(\''+r.id+'\',\'rejected\')">Reject</button>';
+    } else if(r.status === 'accepted'){
+      actions = '<button class="btn btn-primary btn-sm" style="width:auto;" onclick="updateRec(\''+r.id+'\',\'completed\')">Mark Completed</button>';
+    }
+    return '<div class="rec-row"><div class="rec-top"><div><div class="rec-action">'+escapeHtml(r.recommended_action)+'</div>'
+      + '<div class="rec-reason">'+escapeHtml(r.reason)+'</div></div>'
+      + '<div style="text-align:right;white-space:nowrap;">'+severityPill(r.priority)+'<br/><span style="font-size:10px;color:var(--dim);font-family:var(--font-mono)">'+r.responsible_role+'</span></div></div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;"><div>'+statusPill(r.status)+' '+(r.related_ref ? '<span class="mono" style="font-size:11px;color:var(--dim)">'+escapeHtml(r.related_ref)+'</span>' : '')+'</div>'
+      + '<div class="rec-actions">'+actions+'</div></div></div>';
+  }).join('') || '<div class="empty-state">No recommendations yet.</div>';
+}
+
+async function updateRec(id, status){
+  try{
+    await api('/recommendations/'+id, {method:'PATCH', body: JSON.stringify({status: status})});
+    toast('Recommendation marked ' + status);
+    renderRecommendations();
+  }catch(e){ toast(e.message, true); }
+}
+async function renderSecurity(){
+  const findings = await api('/security/findings?project_id='+state.projectId);
+  document.getElementById('sec-count').textContent = '('+findings.length+')';
+  document.getElementById('sec-table-body').innerHTML = findings.map(function(f){
+    return '<tr><td>'+severityPill(f.severity)+'</td><td class="mono">'+escapeHtml(f.source)+'</td><td class="mono">'+escapeHtml(f.component||'--')+'</td>'
+      + '<td class="mono">'+escapeHtml(f.cve||'--')+'</td><td>'+statusPill(f.status)+'</td></tr>';
+  }).join('') || '<tr><td colspan="5" class="empty-state">No security findings recorded.</td></tr>';
+}
+
+async function renderAnomalies(){
+  try{
+    const rows = await api('/anomalies?project_id='+state.projectId);
+    document.getElementById('anomaly-count').textContent = '('+rows.length+' modules)';
+    document.getElementById('anomaly-table-body').innerHTML = rows.map(function(r){
+      return '<tr><td class="mono">'+escapeHtml(r.path)+'</td><td class="mono">'+r.reconstruction_error+'</td>'
+        + '<td class="mono" style="color:var(--dim)">'+r.anomaly_threshold+'</td><td class="mono">'+r.severity+'x</td>'
+        + '<td>'+(r.is_anomaly ? '<span class="pill pill-critical">anomaly</span>' : '<span class="pill pill-low">normal</span>')+'</td></tr>';
+    }).join('') || '<tr><td colspan="5" class="empty-state">No modules analyzed yet.</td></tr>';
+  }catch(e){
+    document.getElementById('anomaly-table-body').innerHTML = '<tr><td colspan="5" class="empty-state">'+escapeHtml(e.message)+'</td></tr>';
+  }
+}
+
+async function renderIssues(){
+  const issues = await api('/issues?project_id='+state.projectId);
+  document.getElementById('issue-count').textContent = '('+issues.length+')';
+  document.getElementById('issue-table-body').innerHTML = issues.map(function(i){
+    return '<tr><td>'+escapeHtml(i.title)+'</td><td>'+severityPill(i.severity)+'</td>'
+      + '<td><span class="pill pill-'+i.status+'">'+i.status+'</span></td>'
+      + '<td class="mono" style="color:var(--dim)">'+escapeHtml(i.related_module_path||'--')+'</td>'
+      + '<td>'+(i.status==='open' ? '<button class="btn btn-ghost btn-sm" onclick="closeIssue(\''+i.id+'\')">Close</button>' : '')+'</td></tr>';
+  }).join('') || '<tr><td colspan="5" class="empty-state">No bugs recorded yet.</td></tr>';
+}
+
+async function createIssue(){
+  const title = document.getElementById('new-issue-title').value.trim();
+  if(!title) return;
+  const severity = document.getElementById('new-issue-severity').value;
+  try{
+    await api('/issues', {method:'POST', body: JSON.stringify({project_id: state.projectId, title: title, severity: severity})});
+    document.getElementById('new-issue-title').value = '';
+    toast('Bug reported');
+    renderIssues(); renderOverview();
+  }catch(e){ toast(e.message, true); }
+}
+async function closeIssue(id){
+  try{ await api('/issues/'+id+'/close', {method:'PATCH'}); toast('Issue closed'); renderIssues(); }
+  catch(e){ toast(e.message, true); }
+}
+
+async function renderTasks(){
+  const tasks = await api('/tasks?project_id='+state.projectId);
+  document.getElementById('task-count').textContent = '('+tasks.length+')';
+  document.getElementById('task-list').innerHTML = tasks.map(function(t){
+    let btns = '<button class="btn btn-ghost btn-sm" onclick="computeTaskPriority(\''+t.id+'\')">Compute real priority</button>';
+    if(t.status !== 'DONE'){
+      btns += '<button class="btn btn-ghost btn-sm" onclick="advanceTask(\''+t.id+'\',\''+t.status+'\')">Advance status</button>';
+    }
+    return '<div class="task-card"><div class="task-top"><div class="task-title">'+escapeHtml(t.title)+'</div>'
+      + '<span class="pill pill-'+t.status+'">'+t.status.replace(/_/g,' ')+'</span></div>'
+      + '<div class="task-meta"><span>'+(t.story_points || 0)+' pts</span>'
+      + '<span>'+(t.deadline ? 'due ' + new Date(t.deadline).toLocaleDateString() : 'no deadline')+'</span>'
+      + '<span id="priority-'+t.id+'"></span></div>'
+      + '<div style="margin-top:10px;display:flex;gap:8px;">'+btns+'</div></div>';
+  }).join('') || '<div class="empty-state">No tasks yet.</div>';
+}
+
+async function createTask(){
+  const title = document.getElementById('new-task-title').value.trim();
+  if(!title) return;
+  try{
+    await api('/tasks', {method:'POST', body: JSON.stringify({project_id: state.projectId, title: title})});
+    document.getElementById('new-task-title').value = '';
+    toast('Task added');
+    renderTasks();
+  }catch(e){ toast(e.message, true); }
+}
+
+async function computeTaskPriority(id){
+  try{
+    const res = await api('/tasks/'+id+'/priority');
+    const el = document.getElementById('priority-'+id);
+    if(el) el.textContent = 'priority ' + res.score + ' (' + (res.reasons.join(', ') || 'baseline') + ')';
+    toast('Real priority score: ' + res.score + '/100');
+  }catch(e){ toast(e.message, true); }
+}
+
+const STATUS_FLOW = ['BACKLOG','TODO','IN_PROGRESS','IN_REVIEW','TESTING','DONE'];
+async function advanceTask(id, current){
+  const idx = STATUS_FLOW.indexOf(current);
+  const next = STATUS_FLOW[Math.min(idx+1, STATUS_FLOW.length-1)];
+  try{
+    await api('/tasks/'+id+'/status?status='+next, {method:'PATCH'});
+    toast('Task moved to ' + next.replace(/_/g,' '));
+    renderTasks();
+  }catch(e){ toast(e.message, true); }
+}
+
+async function renderEvents(){
+  const events = await api('/monitoring/events?project_id='+state.projectId+'&limit=50');
+  document.getElementById('event-count').textContent = '('+events.length+')';
+  document.getElementById('event-list').innerHTML = events.map(function(e){
+    return '<div class="event-row"><span class="event-time">'+new Date(e.created_at).toLocaleTimeString()+'</span>'
+      + '<span class="event-type"><span class="status-dot '+(e.status==='dead_letter'?'dead':'')+'"></span>'+e.event_type+'</span>'
+      + '<span class="event-source">'+escapeHtml(e.source)+'</span>'
+      + '<span class="mono" style="color:var(--dim)">'+e.status+'</span></div>';
+  }).join('') || '<div class="empty-state">No events yet for this project.</div>';
+}
+
+async function renderModels(){
+  try{
+    const manifest = await api('/models/training-manifest');
+    document.getElementById('model-empty').style.display = 'none';
+    document.getElementById('model-table-body').innerHTML = Object.entries(manifest.results).map(function(entry){
+      const name = entry[0], m = entry[1];
+      const isChamp = name===manifest.champion_model;
+      return '<tr><td class="'+(isChamp ? 'model-champion' : 'mono')+'">'+name+(isChamp ? ' (champion)' : '')+'</td>'
+        + '<td class="mono">'+m.accuracy+'</td><td class="mono">'+m.precision+'</td><td class="mono">'+m.recall+'</td>'
+        + '<td class="mono">'+m.f1+'</td><td class="mono">'+m.roc_auc+'</td><td class="mono">'+m.inference_latency_ms+'</td></tr>';
+    }).join('');
+  }catch(e){
+    document.getElementById('model-table-body').innerHTML = '';
+    document.getElementById('model-empty').style.display = 'block';
+  }
+  await renderFusionWeights();
+}
+
+async function renderFusionWeights(){
+  try{
+    const result=await api('/models/fusion-weights');
+    document.getElementById('fusion-version').textContent='(v'+result.current_version+')';
+    document.getElementById('fusion-sample').textContent='Current calibration uses '+result.sample_size+' measured completed recommendation outcomes. At least 5 are required to recalibrate.';
+    const actions=Object.keys(result.weights);
+    document.getElementById('fusion-weight-list').innerHTML=actions.map(function(action){
+      const metric=result.metrics[action]||{};
+      const effectiveness=metric.effectiveness_rate==null?'--':Math.round(metric.effectiveness_rate*100)+'%';
+      return '<div class="fusion-weight"><span>'+escapeHtml(action)+'</span><span class="mono">'+result.weights[action].toFixed(2)+'</span>'
+        + '<span class="mono">'+(metric.sample_size||0)+'</span><span class="mono">'+effectiveness+'</span></div>';
+    }).join('');
+    document.getElementById('fusion-history').textContent=result.history.length
+      ? 'History: '+result.history.map(function(item){return 'v'+item.version+' ('+item.sample_size+' outcomes)';}).join('  ->  ')
+      : 'No recalibration history yet; default ranking weights are 1.00.';
+  }catch(e){
+    document.getElementById('fusion-sample').textContent=e.message;
+    document.getElementById('fusion-weight-list').innerHTML='';
+  }
+}
+
+async function recalibrateFusion(button){
+  button.disabled=true;
+  try{
+    const result=await api('/models/recalibrate',{method:'POST'});
+    toast('Fusion weights recalibrated from '+result.sample_size+' measured outcomes');
+    await renderFusionWeights();
+  }catch(e){toast(e.message,true);}
+  finally{button.disabled=false;}
+}
+
+window.addEventListener('resize', function(){ if(currentSection()==='overview' && state.projectId) renderOverview(); });
+
+checkConnectivity(false);
+setInterval(function(){ checkConnectivity(false); }, 15000);
+function finishGitHubLogin(){
+  const params = new URLSearchParams(window.location.hash.slice(1));
+  const githubError = params.get('github_error');
+  const accessToken = params.get('access_token');
+  const githubToken = params.get('github_access_token');
+  if(!githubError && !accessToken && !githubToken) return false;
+  history.replaceState(null, '', window.location.pathname + window.location.search);
+  if(githubError){
+    const messages = {
+      access_denied: 'GitHub sign-in was cancelled.',
+      invalid_state: 'GitHub sign-in could not be verified. Please try again.',
+      verified_email_required: 'Add a verified email to your GitHub account, then try again.'
+    };
+    document.getElementById('login-error').textContent = messages[githubError] || 'GitHub sign-in failed. Please try again.';
+    return true;
+  }
+  if(!accessToken || !githubToken){
+    document.getElementById('login-error').textContent = 'GitHub sign-in did not return a valid session.';
+    return true;
+  }
+  state.access = accessToken;
+  state.githubAccess = githubToken;
+  const remember = sessionStorage.getItem('aetherai_remember_login_choice') !== 'false';
+  sessionStorage.removeItem('aetherai_remember_login_choice');
+  persistAetherSession(accessToken, remember);
+  sessionStorage.setItem('aetherai_github_token', githubToken);
+  enterApp().then(function(){
+    switchSection('connect');
+    return loadGitHubRepositories();
+  }).catch(function(error){
+    logout();
+    document.getElementById('login-error').textContent = error.message;
+  });
+  return true;
+}
+
+function finishPasswordReset(){
+  const params=new URLSearchParams(window.location.hash.slice(1));
+  const token=params.get('password-reset');
+  if(!token)return false;
+  history.replaceState(null,'',window.location.pathname+window.location.search);
+  showPasswordResetForm(token);
+  return true;
+}
+
+if(!finishPasswordReset()&&!finishGitHubLogin()){
+  const saved = localStorage.getItem('aetherai_token') || sessionStorage.getItem('aetherai_token');
+  state.githubAccess = sessionStorage.getItem('aetherai_github_token');
+  if(saved){
+    state.access = saved;
+    enterApp().then(function(){
+      if(state.githubAccess) loadGitHubRepositories();
+    }).catch(function(){ logout(); });
+  }
+}
+</script>
+</body>
+</html>

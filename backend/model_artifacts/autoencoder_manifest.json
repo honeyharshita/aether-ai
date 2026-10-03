@@ -1,0 +1,18 @@
+{
+  "model_version": "v1",
+  "feature_columns": [
+    "loc",
+    "cyclomatic_complexity",
+    "num_functions",
+    "churn_30d",
+    "num_commits",
+    "num_authors",
+    "historical_defects",
+    "test_coverage"
+  ],
+  "bottleneck_dim": 4,
+  "n_normal_training_rows": 159,
+  "reconstruction_error_mean": 0.3184755506870637,
+  "reconstruction_error_std": 0.22099143767559484,
+  "anomaly_threshold": 0.9814498637138482
+}

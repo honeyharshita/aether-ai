@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+.pytest_cache/
+model_artifacts/*.joblib
+backend/model_artifacts/*.joblib
+backend/mlruns/
+backend/*.db
+backend/model_artifacts/*.db
+.DS_Store
+node_modules/
+*.egg-info/
+.terraform/
+*.tfstate
+*.tfstate.backup
