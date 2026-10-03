@@ -13,10 +13,13 @@ docs/ARCHITECTURE.md "Deviations from spec" for the extraction path to
 real separate services.
 """
 import datetime as dt
+from pathlib import Path
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.database import Base, engine, ensure_commit_files_column
 from app.routers import auth, projects, repositories, issues, tasks, predictions, recommendations, security, monitoring, demo, twin, memory
@@ -77,9 +80,17 @@ def stop_twin_snapshot_scheduler():
 
 @app.get("/")
 def root():
+    frontend_index = Path(__file__).resolve().parents[2] / "frontend" / "index.html"
+    if frontend_index.exists():
+        return FileResponse(frontend_index)
     return {
         "product": "AetherAI",
         "status": "running",
         "docs": "/docs",
         "health": "/api/v1/monitoring/health",
     }
+
+
+frontend_dir = Path(__file__).resolve().parents[2] / "frontend"
+if frontend_dir.is_dir():
+    app.mount("/", StaticFiles(directory=frontend_dir), name="frontend")

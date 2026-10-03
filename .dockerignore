@@ -1,0 +1,8 @@
+.git
+.env
+.env.*
+backend/mlruns/
+backend/*.db
+backend/model_artifacts/*.joblib
+**/__pycache__/
+**/*.pyc

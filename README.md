@@ -1,3 +1,12 @@
+---
+title: AetherAI
+emoji: ":cloud:"
+colorFrom: blue
+colorTo: teal
+sdk: docker
+app_port: 7860
+---
+
 # AetherAI — Adaptive Software Engineering Intelligence Platform
 
 AetherAI observes a software project, predicts what's likely to go wrong
