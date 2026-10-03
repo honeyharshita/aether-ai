@@ -1,0 +1,48 @@
+databases:
+  - name: aetherai-postgres
+    databaseName: aetherai
+    user: aetherai
+    plan: free
+
+services:
+  - type: web
+    name: aetherai-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/v1/monitoring/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: aetherai-postgres
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ENV
+        value: prod
+      - key: FRONTEND_URL
+        fromService:
+          type: static_site
+          name: aetherai-frontend
+          property: host
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
+      - key: GITHUB_REDIRECT_URI
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+
+  - type: static_site
+    name: aetherai-frontend
+    buildCommand: ""
+    staticPublishPath: ./frontend
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://aetherai-backend.onrender.com/api/*
